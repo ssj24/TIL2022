@@ -18,7 +18,33 @@
 
   var example = [1, 'Joe', true null]; 처럼 만들 수 있다
 
-[toc]
+
+
+[array 만들기](#array 만들기)
+
+[array 요소 access & write](#array 요소 access & write) 
+
+[string에서 array 만들기](#string에서 array 만들기)
+
+[집계 작업(aggregate operations)](#집계 작업(aggregate operations))
+
+[Accessor Functions](#Accessor Functions)
+
+[Mutator Functions](#Mutator Functions)
+
+[Iterator Functions](#Iterator Functions)
+
+[2차원 이상의 array](#2차원 이상의 array)
+
+[2차원 array 요소 process](#2차원 array 요소 process)
+
+[Jagged Arrays](#Jagged Arrays)
+
+[오브젝트로 이루어진 array](#오브젝트로 이루어진 array)
+
+[오브젝트 안의 array](#오브젝트 안의 array)
+
+[Exercises](#Exercises)
 
 ## array 만들기
 
@@ -71,7 +97,7 @@ print(nums); // write, modify
 
   array의 모든 요소를 활용한다는 게 보장되기 때문이다
 
-  ```JS
+  ```js
   var numbers = [1, 2, 3, 4, 5];
   var sum = 0;
   for (var i=0; i<numbers.length; ++i) {
@@ -88,7 +114,7 @@ print(nums); // write, modify
 
 string에 `split()`을 쓰면 array가 만들어진다
 
-```JS
+```js
 var sentence = "Hi, This is JavaScript";
 var wordsComma = sentence.split(","); 
 // ,를 기준으로 나눈다
@@ -104,7 +130,7 @@ var wordsBlank = sentence.split(" ");
 
 1. array를 다른 array에 할당할 수 있다
 
-   ```JS
+   ```js
    var nums = [1, 2, 3, 4, 5];
    var meToo = nums;
    
@@ -133,7 +159,7 @@ var wordsBlank = sentence.split(" ");
 
    더 이상 참조하는 게 아니라 진짜 복사가 된 것이기 때문이다
 
-   ```JS
+   ```js
    function copy(arr1, arr2) {
      for (var i=0; i<arr1.length; ++i) {
        arr2[i] = arr1[i];
@@ -174,7 +200,7 @@ array 요소에 액세스하는 함수들
 
      indexOf()와 동일한데 **뒤에서부터** 훑는다
 
-   ```JS
+   ```js
    var order = ["Alpha", "Beta", "Gamma", "Beta"];
    print(order.indexOf("Beta")); // 1
    print(order.indexOf("Delta")); // -1
@@ -187,7 +213,7 @@ array 요소에 액세스하는 함수들
 
    - join()
 
-     ```JS
+     ```js
      var alphas = ["a", "b", "c", "and", "d"];
      print(alphas.join()); // a, b, c, and, d
      ```
@@ -212,7 +238,7 @@ array 요소에 액세스하는 함수들
 
      인자로 넘기는 array는 concat을 부른 JS의 마지막에 붙는다
 
-     ```JS
+     ```js
      var nums = [1, 2, 3];
      var strs = ['a', 'b', 'c'];
      var concatArray = nums.concat(strs);
@@ -231,7 +257,7 @@ array 요소에 액세스하는 함수들
 
      item들은 start부터 넣어줄 요소들로 이 기능은 뒤에서 상술한다
 
-     ```JS
+     ```js
      var nums = [1, 2, 3, 4, 5];
      var subNum = nums.splice(2, 2);
      print(subNum); // 3, 4
@@ -252,7 +278,7 @@ array 요소에 액세스하는 함수들
 
      array의 마지막에 더한다
 
-     ```JS
+     ```js
      var nums = [1, 2, 3, 4, 5];
      nums[nums.length] = 'last'; // 마지막에 요소를 추가하는 또 다른 방법
      nums.push('realLast');
@@ -265,7 +291,7 @@ array 요소에 액세스하는 함수들
 
      mutator 함수 없이 array의 처음에 요소를 더하려면 기존 요소들을 하나씩 뒤로 옮긴 뒤에 새로운 요소를 더해야 해서 어렵다
 
-     ```JS
+     ```js
      var nums = [2, 3, 4, 5];
      var newNum = 1;
      nums.unshift(newNum);
@@ -282,7 +308,7 @@ array 요소에 액세스하는 함수들
 
      array의 마지막 요소를 삭제한다
 
-     ```JS
+     ```js
      var nums = [1, 2, 3, 4, 5];
      nums.pop();
      print(nums); // 1, 2, 3, 4
@@ -292,7 +318,7 @@ array 요소에 액세스하는 함수들
 
      array의 첫 번째 요소를 삭제한다
 
-     ```JS
+     ```js
      var nums = [1, 2, 3, 4, 5];
      nums.shift();
      print(nums); // 2, 3, 4, 5
@@ -319,7 +345,7 @@ array 요소에 액세스하는 함수들
 
    item: start 인덱스부터 더해줄 요소
 
-   ```JS
+   ```js
    var nums = [1, 2, 3, 7, 8, 9];
    nums.splice(3, 0, 4, 5, 6);
    // 아무것도 지우지 않고 세번째 인덱스부터 4, 5, 6을 더하겠다
@@ -335,7 +361,7 @@ array 요소에 액세스하는 함수들
 
      array의 요소를 반대로 정렬한다
 
-     ```JS
+     ```js
      var nums = [1, 2, 3, 4, 5];
      num.reverse();
      print(nums); // 5, 4, 3, 2, 1
@@ -363,7 +389,7 @@ array 요소에 액세스하는 함수들
 
      숫자 정렬은 빼기를 통해 간단하게 가능하다
 
-     ```JS
+     ```js
      function compare(num1, num2) {
        return num1 - num2;
      }
@@ -386,7 +412,7 @@ array의 각 요소를 돌면서 a value, a set of values, or a new array를 리
 
      함수를 인자로 받고 해당 함수를 array의 각 요소에 적용한다
 
-     ```JS
+     ```js
      function square(num) {
        print(num*num);
      }
@@ -409,7 +435,7 @@ array의 각 요소를 돌면서 a value, a set of values, or a new array를 리
 
      array의 모든 요소가 boolean 함수에 대해 true라면 true를 리턴한다
 
-     ```JS
+     ```js
      function isEven(num) {
        return num % 2 == 0;
      }
@@ -424,7 +450,7 @@ array의 각 요소를 돌면서 a value, a set of values, or a new array를 리
 
      array의 요소 중 하나라도 boolean 함수에 대해 true라면 true를 리턴한다
 
-     ```JS
+     ```js
      var someEven = nums.some(isEven);
      print(someEven); // true
      ```
@@ -435,7 +461,7 @@ array의 각 요소를 돌면서 a value, a set of values, or a new array를 리
 
      값을 축적하여 마지막에 하나의 값을 생성한다
 
-     ```JS
+     ```js
      function add(runningTotal, currentValue) {
        return runningTotal + currentValue;
      }
@@ -452,7 +478,7 @@ array의 각 요소를 돌면서 a value, a set of values, or a new array를 리
 
      reduceRight는 오른쪽에서 왼쪽으로(n에서 0으로)
 
-     ```JS
+     ```js
      function concat(accumulatedString, item) {
        return accumulatedString + item;
      }
@@ -471,7 +497,7 @@ array의 각 요소를 돌면서 a value, a set of values, or a new array를 리
 
      함수 적용 결과가 리턴하는 array의 요소가 된다
 
-     ```JS
+     ```js
      function curve(grade) {
        return grade += 5;
      }
@@ -493,7 +519,7 @@ array의 각 요소를 돌면서 a value, a set of values, or a new array를 리
 
      **Boolean 함수를 만족하는 요소들로만 구성된 새로운 array**를 리턴한다
 
-     ```JS
+     ```js
      function isEven(num) {
        return num % 2 == 0;
      }
@@ -509,7 +535,7 @@ array의 각 요소를 돌면서 a value, a set of values, or a new array를 리
 
      filter()를 스트링과 함께 쓰는 것도 가능
 
-     ```JS
+     ```js
      function afterc(str) {
        if (str.indexOf("cie") > -1) {
          return true;
@@ -531,7 +557,7 @@ array는 기본적으로 1차원이지만 다차원의 array를 만들 수 있�
 
    array의 요소들을 array로 만들면 된다
 
-   ```JS
+   ```js
    Array.matrix = function(numrows, numcols, initial) {
      var arr = [];
      for (var i=0; i<numrows; ++i) {
@@ -572,7 +598,7 @@ column이나 row를 통해 접근하는 두 가지 패턴이 있는데, 모두 *
 
 안쪽 반복문이 각 칼럼을 처리한다
 
-```JS
+```js
 var grades = [[30, 30, 30], [60, 60, 60], [90, 90, 90]];
 var total = 0;
 var average = 0.0;
@@ -606,7 +632,7 @@ grades의 array의 한 행은 한 학생이 받은 점수들의 집합이라고 
 
 바깥쪽 반복문은 칼럼을 돌고 안쪽 반복문은 로우를 돌면 된다
 
-```JS
+```js
 var grades = [[30, 30, 30], [60, 60, 60], [90, 90, 90]];
 var total = 0;
 var average = 0.0;
@@ -652,7 +678,7 @@ ex) [[10], [20, 20], [30, 30, 30]]
 
 
 
-```JS
+```js
 function weekTemps() {
   this.dataStore = [];
   this.add = add;
