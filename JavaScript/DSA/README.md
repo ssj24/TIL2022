@@ -2,15 +2,6 @@
 
 
 
-<style>
-  a {
-    display: block;
-    margin: 20px;
-    text-decoration: none;
-    color: black;
-    font-weight: 900;
-  }
-</style>
 <div style="display: flex;">
   <div style="width: 50%;">
     <ul style="display: flex; flex-direction: column;">
