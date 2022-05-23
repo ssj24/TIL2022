@@ -18,33 +18,31 @@
 
   var example = [1, 'Joe', true null]; 처럼 만들 수 있다
 
+[array 만들기](#array-만들기)
 
+[array 요소 access & write](#array-요소-access--write) 
 
-[array 만들기](#array 만들기)
+[string에서 array 만들기](#string에서-array-만들기)
 
-[array 요소 access & write](#array 요소 access & write) 
+[집계 작업(aggregate operations)](#집계-작업aggregate-operations)
 
-[string에서 array 만들기](#string에서 array 만들기)
+[Accessor Functions](#accessor-functions)
 
-[집계 작업(aggregate operations)](#집계 작업(aggregate operations))
+[Mutator Functions](#mutator-functions)
 
-[Accessor Functions](#Accessor Functions)
+[Iterator Functions](#iterator-functions)
 
-[Mutator Functions](#Mutator Functions)
+[2차원 이상의 array](#2차원-이상의-array)
 
-[Iterator Functions](#Iterator Functions)
+[2차원 array 요소 process](#2차원-array-요소-process)
 
-[2차원 이상의 array](#2차원 이상의 array)
+[Jagged Arrays](#jagged-arrays)
 
-[2차원 array 요소 process](#2차원 array 요소 process)
+[오브젝트로 이루어진 array](#오브젝트로-이루어진-array)
 
-[Jagged Arrays](#Jagged Arrays)
+[오브젝트 안의 array](#오브젝트-안의-array)
 
-[오브젝트로 이루어진 array](#오브젝트로 이루어진 array)
-
-[오브젝트 안의 array](#오브젝트 안의 array)
-
-[Exercises](#Exercises)
+[Exercises](#exercises)
 
 ## array 만들기
 
