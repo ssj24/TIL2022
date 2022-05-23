@@ -2,9 +2,9 @@
 
 ## UDEMY
 
-### [DOM](https://github.com/ssj24/TIL2022/blob/master/JavaScript/DOM/)
+### [DOM](https://ssj24.github.io/TIL2022/JavaScript/DOM/)
 
-## [Data Structures & Algorithms](https://github.com/ssj24/TIL2022/blob/master/JavaScript/DSA/)
+## [Data Structures & Algorithms](https://ssj24.github.io/TIL2022/JavaScript/DSA/)
 
-## [You Don's Know JS](https://github.com/ssj24/TIL2022/blob/master/JavaScript/YDKJS/)
+## [You Don's Know JS](https://ssj24.github.io/TIL2022/JavaScript/YDKJS/)
 
