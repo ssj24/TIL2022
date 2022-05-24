@@ -276,7 +276,7 @@ async function createArr(file) {
 }
 ```
 
-:exclamation: 텍스트 파일을 읽는 법
+📌 텍스트 파일을 읽는 법
 read()가 안 되서 fs 사용
 
 ```js
@@ -358,14 +358,14 @@ async function main(file) {
 main("films.txt");
 ```
 
-:exclamation: input 받기
+📌 input 받기
 readline은 input 넣는 걸 안 기다려줘서 prompt-sync로..
 
 `npm install prompt-sync`
 `const prompt = require('prompt-sync')();`
 `let name = propmt("What's your name?");`
 
-:exclamation: movies가 결과값을 받아오기까지 안 기다려줘서 main 함수를 만들어봄
+📌 movies가 결과값을 받아오기까지 안 기다려줘서 main 함수를 만들어봄
 
 ```shell
 Available movies:
