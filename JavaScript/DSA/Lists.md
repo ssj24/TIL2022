@@ -425,7 +425,170 @@ City of God
 ## Exercise
 
 1. 이미 리스트에 있는 엘리먼트보다 클 때만 새로운 엘리먼트를 삽입할 수 있는 함수 만들기(오름차순)
+
+   ```js
+   function largerInsert(list, element) {
+     let max = list.getElement(list[0]);
+     for (let i=0; i<list.length(); ++i) {
+       if (list[i] > max) max = list[i];
+     }
+     if (element > max) {
+       list.append(element);
+       return;
+     }
+     else console.log('TOO SMALL!')
+   }
+   
+   var firstQ = new List();
+   firstQ.append(1);
+   firstQ.append(2);
+   firstQ.append(3);
+   console.log(firstQ.dataStore);
+   largerInsert(firstQ, 1);
+   largerInsert(firstQ, 9);
+   console.log(firstQ.dataStore);
+   ```
+
 2. 이미 리스트에 있는 엘리먼트보다 작을 때만 새로운 엘리먼트를 삽입할 수 있는 함수 만들기
+
+   ```js
+   function smallerInsert(list, element) {
+     let min = list.getElement(list[0]);
+     for (let i=0; i<list.length(); ++i) {
+       if (list[i] < min) min = list[i];
+     }
+     if (element < min) {
+       list.append(element);
+       return;
+     }
+     else console.log('TOO LARGE!')
+   }
+   
+   var firstQ = new List();
+   firstQ.append(1);
+   firstQ.append(2);
+   firstQ.append(3);
+   console.log(firstQ.dataStore);
+   smallerInsert(firstQ, 0);
+   smallerInsert(firstQ, 9);
+   console.log(firstQ.dataStore);
+   ```
+
+   
+
 3. 이름과 성별을 저장하는 Person 클래스 만들기. 최소 10개 이상의 Person 오브젝트 생성하기. 같은 성별을 가진 사람들 표시하는 함수 만들기
+
+   ```js
+   function Person(name, gender) {
+     this.name = name;
+     this.gender = gender;
+   }
+   function sameGender(list, name) {
+     let result = new List();
+     for (let i=0; i<list.length(); ++i) {
+       if (name.gender == list.dataStore[i].gender) {
+         result.append(list.dataStore[i].name);
+         console.log('hhh');
+       }
+     }
+     return result;
+   }
+   
+   
+   var people = new List();
+   var aaa = new Person('aaa', 'F');
+   people.append(aaa);
+   var bbb = new Person('bbb', 'M');
+   people.append(bbb);
+   var ccc = new Person('ccc', 'F');
+   people.append(ccc);
+   var ddd = new Person('ddd', 'F');
+   people.append(ddd);
+   var eee = new Person('eee', 'F');
+   people.append(eee);
+   var fff = new Person('fff', 'F');
+   people.append(fff);
+   var ggg = new Person('ggg', 'F');
+   people.append(ggg);
+   var hhh = new Person('hhh', 'F');
+   people.append(hhh);
+   var iii = new Person('iii', 'F');
+   people.append(iii);
+   var jjj = new Person('jjj', 'F');
+   people.append(jjj);
+   
+   // console.log(people.dataStore);
+   var result = sameGender(people, bbb);
+   console.log(result.dataStore);
+   ```
+
+   
+
 4. 비디오 키오스크 프로그램을 수정해서 영화를 빌릴 때 대출 중인 영화 리스트에 영화를 더하고, 이 목록을 대출할 때 보여주기
+
 5. 비디오 키오스크 프로그램에 반납 함수 만들기. 반납된 영화는 대출 중인 영화 리스트에서 지우고 대출 가능한 영화 리스트에 더하기
+
+   ```js
+   // 영화 대출 작업: 키오스크 리스트에서 제거 - customers 리스트에 추가
+   function checkOut(name, movie, filmList, customerList) {
+  if (filmList.contains(movie)) {
+       var c = new Customer(name, movie);
+       customerList.append(c);
+       filmList.remove(movie);
+       rentalList.append(movie);
+       console.log("\nCustomer Rentals: \n");
+       displayList(customers);
+       console.log("\nRented Movies: \n");
+       displayList(rentalList);
+       console.log("\nMovies Now Available\n");
+       displayList(movieList);
+     }
+     else {
+       console.log(movie + " is not available.");
+       console.log("Available movies: \n");
+       displayList(movieList);
+     }
+   }
+   
+   function checkIn(name, movie, rentalList, customerList) {
+     if (rentalList.contains(movie)) {
+       rentalList.remove(movie);
+       movieList.append(movie);
+       for (let c=0; c<customerList.length(); ++c) {
+         if (customerList.dataStore[c].movie == movie) {
+           customerList.remove(customerList.dataStore[c]);
+           break
+         }
+       }
+       console.log("\nRented Movies: \n");
+       displayList(rentalList);
+     }
+   }
+   
+   var movies, movieList, customers, rentalList;
+   
+   async function main(file) {
+     movies = await createArr(file);
+     movieList = new List();
+     customers = new List();
+     rentalList = new List();
+     for await (let i of movies) {
+       movieList.append(i);
+     }
+     console.log("Available movies: \n");
+     displayList(movieList);
+     checkOut("a", "Star Wars", movieList, customers);
+     checkOut("a", "City of God", movieList, customers);
+     checkOut("aaa", "The Matrix", movieList, customers);
+     checkIn('aaa', 'The Matrix', rentalList, customers);
+   }
+   main("films.txt");
+   
+   
+   // rentalList 생성
+   // checkOut 함수에서 영화를 빌릴 때 rentalList에 추가
+   
+   // checkIn 함수 생성
+   ```
+   
+   
