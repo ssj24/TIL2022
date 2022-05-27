@@ -247,6 +247,124 @@ underlined text is JavaScript. plane text is the DOM API.
 
 ## Accessing the DOM
 
+DOM: the browser's visual representation of your page
+
+To access the DOM, use document object
+
+`typeof(document)` => object
+
+though each browser has their own DOM, they follow the same standards.
+
+- ways to access elements on our page(access the DOM)
+
+  sometimes we want more control than only accessing the document
+
+  - `document.getElementById()` => element object
+  - `document.getElementsByClassName()` => HTML Collection
+  - `document.getElementsByTagName()` => HTML Collection
+  - `document.querySelector()` => element object
+  - `document.querySelectorAll()` => node list
+
+  these methods comes from Document object
+
+the DOM is often referred to as DOM Tree. 
+
+this tree consists of millions of objects called Nodes.
+
+pretty much everything is node.
+
+document node - html node - head node - title node...
+
+document node - html node - body node - h1 node...
+
+- `<h1 id = "heading"> Hope </h1>` 
+
+  whole line above is element.
+
+  h1 is tag
+
+  id is attribute
+
+  heading is attribute value
+
+  Hope is text
+
+### getElementById
+
+traditional way of accessing DOM
+
+it returns an Element node
+
+```js
+let header = document.getElementById('header');
+header.nodeType; // 1(it means Element Node)
+header.nodeName; // Div(header is Div Element)
+```
+
+Id has to be **unique**
+
+you can only access **one** element
+
+### getElementsByClassName
+
+it takes only one argument - the class name
+
+returns a live HTMLCollection(it's **not** an array)
+
+```js
+let classElements = document.getElementsByClassName('header');
+for(i=0; i<classElements.length; ++i) {
+  classElements[i].style.backgroundColor = 'rgb(122, 173, 254)';
+}
+```
+
+forEach function can only be used on Arrays, Maps, and Sets.
+
+HTMLCollection.forEach() throws an error
+
+length property is provided by the DOM API not JS.
+
+### getElementsByTagName
+
+this method searches through all nodes, finding those with a specified tag name(=> heavy performance)
+
+it returns a live HTMLCollection
+
+`let tagElements = document.getElementsByTagName('p');`
+
+### querySelector
+
+kinda newer way to access the DOM
+
+like jQuery's CSS selector
+
+In 2013, we were given the Selector API(querySelector, querySelectorAll)
+
+querySelector returns single Item(Element Object)
+
+querySelectorAll returns all elements(Node List)
+
+`#test`: id = "test"
+
+`#test.demo`: id = "test" & class = "demo"
+
+`.text`: class = "test"
+
+`a:hover`: when mouse over a link
+
+`*`: all elements
+
+```js
+let queryElement = document.querySelector("#query");
+let queryAllElement = document.querySelectorAll(".query-all");
+// forEach can be applied for node list
+queryAllElement.forEach(el => { 
+  el.style.backgroundColor = "red";
+});
+```
+
+
+
 ## Nodes
 
 ## Traversing the DOM
@@ -266,3 +384,7 @@ underlined text is JavaScript. plane text is the DOM API.
 ## Event Delegation and Challenges
 
 ## Website Project - A Shopping List
+
+## Tips
+
+1. console - sources - New Snippet
