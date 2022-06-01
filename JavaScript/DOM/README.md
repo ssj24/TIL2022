@@ -367,6 +367,158 @@ queryAllElement.forEach(el => {
 
 ## Nodes
 
+Node: every item in the DOM tree
+
+every html document is made up of a tree of HTML nodes. ex) `<p>` `<head>`
+
+each node can have html attributes
+
+each node can have content including other nodes & text
+
+semantic tag: nodes which have a specific meaning / purpose
+
+
+
+```html
+<head>
+  <title>This is title</title>
+</head>
+```
+
+- `HTML`(HTMLElementNode)
+  - `HEAD`(Head Element Node)
+    - `#text`(new line, space..)
+    - `TITLE`(Title Element Node)
+      - `#text`
+    - `#text`(new line)
+
+
+
+any new line or space are valid characters
+
+=> they are part of the DOM
+
+but there are two exceptions
+
+- spaces & new lines **above** the `<head>` are ignored
+- spaces & new lines **below** the `</body>` are removed and placed inside the `<body>`
+
+
+
+### different types of Node
+
+- 1: **Element Node** - inside of tag
+- 3: **Text node** - not inside of a tag. actual text
+- 4: CDATA section Node - character data that is not parsed by the parser
+- 7: Processing Instruction Node - used with XML to embed application-specific instructions
+- 8: **Comment Node** - `<!-- -->`
+- 9: **Document Node** - root document node
+- 10: Document Type Node - `<!DOCTYPE html>` declaration
+- 11: Document Fragment Node - a lightweight document object. sometimes you may want to extract a portion of the documents tree and create a new fragment
+
+Every node has a nodeType, nodeName and nodeValue property
+
+
+
+family dynamics: parents, siblings, children
+
+이 관계는 누가 중심이냐에 따라 다르다
+
+```html
+<body>
+  <div>
+    <h1>This is H1</h1>
+    <h2>This is H2</h2>
+  </div>
+</body>
+```
+
+body - div relationship is parent - child
+
+but in div - h1 relationship div becomes parent
+
+
+
+$0: 현재 노드
+
+- devtool에 $0을 쓰면 현재 node(element 탭에서 클릭한..?)
+- $0.nodeType => comment node면 8을 리턴
+- $0.nodeName => `#comment`
+- $0.nodeValue => comment content
+
+
+
+### nodename
+
+you can view the name of an element or tag you're dealing with.
+
+just console log the nodeName(it returns a CAPITAL string)
+
+ex) `<p>` => P  `<div>` => DIV
+
+nodeName is read-only property of DOM nodes
+
+but you can't get information like attributes
+
+$0.tagName is kinda similar but if's only for the element node
+
+
+
+### NodeList vs. HTMLCollection
+
+both are collections of DOM nodes
+
+Nodelist can contain any node type
+
+NodeList items can only be accessed by their index number
+
+NodeList items are typically static
+
+NodeList is a collection of nodes. it's like an array but it is not an array.(not support array methods)
+
+HTMLCollection only contains Element Node
+
+HTMLCollection can be accessed by their name, id, or index number
+
+HTMLCollections are live
+
+
+
+### Live vs. Static Lists
+
+you could modify HTMLCollections which is live: like appendChild()
+
+live node lists update as the DOM updates
+
+if you try to modify the Node List items, it won't work
+
+Node List item is just a **reference** to the original list item
+
+```html
+<li>item1</li>
+<li>item2</li>
+```
+
+- `.getElementsByTagName('li')` => HTMLCollection
+
+  `LiHTMLCollection[0].parentNode.appendChild(document.createElement('li'));`
+
+  parentNode here is `<ul>`. parentNode property only works on nodes. it's read-only property which returns the name of the parent node. HTMLCollection is not Node. it's just Collection of nodes. that's why you specified like [0] above, and then accessed parentNode.
+
+  as a result of this line, `<li>` element is created and LiHTMLCollection is added also.
+
+- `LiNodeList = document.querySelectorAll('li');`
+
+  `LiNodeList[0].parentNode.appendChild(document.createElement('li'));`
+
+  `<li>` will be added to the document, but LiNodeList is not nodified
+
+  if you want to get modified list, you need to declaire it again
+
+
+
+
+
 ## Traversing the DOM
 
 ## Creating, Removing and Cloning DOM Elements
@@ -388,3 +540,4 @@ queryAllElement.forEach(el => {
 ## Tips
 
 1. console - sources - New Snippet
+2. 
