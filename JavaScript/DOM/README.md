@@ -521,6 +521,150 @@ Node List item is just a **reference** to the original list item
 
 ## Traversing the DOM
 
+sometimes you'll want to move through the DOM without specifying each and every element beforehand.
+
+=> traverse the DOM with parent, child, and sibling properties
+
+
+
+how do we move up & down the DOM?
+
+how family structures of DOM tree work?
+
+=> parentNode, parentElement
+
+
+
+descendants: nodes beyond one level of nesting
+
+sibling: any node in the same level.(don't have to be of the same type)
+
+
+
+traversing the DOM: getting one element from a neighboring element in the DOM. traversing uses relationship between nodes
+
+accessing the DOM: starting with `document.`. using DOM access mehod.(it's better way than traversing the DOM)
+
+document.documentElement => htmlElement
+
+
+
+though there are several ways of getting around the DOM, sometimes we don't know what we're looking for
+
+=> all of our elements in the DOM have at least one combination of parents, children and siblings
+
+
+
+to move up and down the DOM tree, there are a few methods we can use.
+
+firstChild, lastChild, previousSibling, nextSibling, children, parentNode
+
+
+
+### parentNode
+
+body - main - wrapper - h2
+
+`let h2 = document.getElementById('h2');`
+
+`h2.parentNode.parentNode.parentNode;` // body
+
+you can chain the mehtods. like parentNode.parentNode...
+
+
+
+### siblings
+
+elements that share the same parent in the same tree level
+
+siblings do not have to be of the same type
+
+nodes higher than a sibling are ancestors
+
+nodes lower than a sibling are descendants
+
+body - main - h1, div
+
+h1 sees div as nextSibling
+
+div sees h1 as previousSibling
+
+`div.previousSibling` = #text 
+
+because there is a spaces or new line between `</h1>` and `<div>`.
+
+previousSibling takes not only ElementNode but all Nodes
+
+if you want to find element only,
+
+uses `div.previousElementSibling`
+
+
+
+### children
+
+- firstChild, lastChild
+
+  only child like main in body - main, main becomes firstChild and lastChild
+
+  if there is no child, both first and lastChild returns null.
+
+- children
+
+  collection of child elements(HTMLCollection)
+
+  though it looks like an array, it's not a true array
+
+  but we can iterate through the coolection
+
+  it has length propery
+
+  body - main - h1, div
+
+  main = body.children[0]
+
+  if there is no child, children returns empty HTMLCollection not null
+
+  `<h1>Hi</h1>` 
+
+  chidren of h1 returns empty HTMLCollection
+
+  first/lastChild of h1 return 'Hi'
+
+  first/lastChild return ANY type of node
+
+  children returns only Element Node
+
+  firstElementChild returns only Element Node
+
+
+
+- an HTML element may have many levels of other elements nested under it (if it directly nested below => children). all of these elements are called descendants of our starting element.
+
+- childNodes vs. children
+
+  childNodes returns a NodeList(all node children)
+
+  children returns a HTMLCollection
+
+  children is a property of an Element
+
+  children are all Element
+
+  - child element number?
+
+    children.length;
+
+    childElementCount;
+
+  - all the nodes number?
+
+    childNodes.length;
+
+
+
+
+
 ## Creating, Removing and Cloning DOM Elements
 
 ## Introduction to Events
