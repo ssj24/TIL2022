@@ -669,6 +669,314 @@ uses `div.previousElementSibling`
 
 ## Introduction to Events
 
+you need to know about event to create dynamic pages
+
+- What is an event?
+
+  an event is an action a user(or browser) has taken
+
+  ex) clicks a button, hovers an element...
+
+  events take place in the browser
+
+  we can use events through javascript
+
+  > web events are not part of the core javascript language. they are given to us by the DOM API built into the browser
+
+  > when the event fires, javascript can comes in. after js executes, then the DOM API can continue to do its business and update the page if required.
+  >
+  > though event and js are very closely related, they are different!
+
+  event listener and event handler are two most important things.
+
+- event listener
+
+  listens out for the event
+
+  DOM API gives us a way to listen to events happening in the DOM
+
+  you can add event listeners to any DOM object(not necessarily a HTML element)
+
+  this "listener" is a function that is subscribed to the event, meaning that when the event is actually fired, it will be notified. this listener will then call the event handler to execute.(not keep watching the element)
+
+  - inline event listeners
+  - inline properties
+  - event listeners
+
+- event handler
+
+  each event(click, keypress..) needs an event handler
+
+  if you want to react to a certain event and do something when a specific action takes place write a js function that deals with the event. this function is the handler of the event.
+
+  an event handler is a block of code 
+
+  when the event happens(fires) execute this event handler
+
+### Inline Event LIsteners
+
+`<button onclick=boom()>Click me</button>`
+
+when the button is clicked, boom function is fired
+
+onclick is provided by a DOM API.
+
+boom is js function
+
+`function boom() {alert('BOOM!');}`
+
+- why attribute vales are not wrapped by quotation mark?
+
+  like `<button onclick="boom()">Click me </button>`
+
+  when we write an inline event listener within HTML, it is an attribute of that HTML element
+
+  like class or type.
+
+  then... why some attribute values needed to be wrapped by quotation mark?
+
+  actually `<button type=button>`, `<button class=awesome>` these code is valid html, too.
+
+  **an attribute value can be used without quotes under certain conditions.**
+
+  - if attribute value does not contain spaces
+
+    `<button class="beautiful funky">` if quotes are omitted in this case, 
+
+    button will have two attributes, class(beautiful) and funky(funky=""). but funky is not a valid HTML
+
+  - if attribute value does not contain
+
+    ```js
+    ""
+    ''
+    ``
+    =
+    <
+    >
+    ```
+
+  - other than two condition, we have to wrap attribut values in single or double quotation marks.
+
+  if it confuses you, just wrap your attribute values in quotes all the time.(good practice)
+
+- inline event listener is not recommended way but you should know about it to deal with it.
+
+  this is unmanageable, inefficient, and not search engine friendly way.
+
+  javascript code in html file makes engine hard to parse
+
+  (inline CSS on an HTML element is also not good)
+
+- test
+
+  ```html
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta http-equiv="X-UA-Compatible" content="ie=edge">
+      <title>Changing Element Colors</title>
+      <style>
+          h1, p {
+              text-align: center;
+          }
+          button {
+              display: block;
+              margin: 2em 0;
+              margin-left: auto;
+              margin-right: auto;
+          }
+      </style>
+  </head>
+  <body>
+      <h1 id="title">This is a really fun Website</h1>
+      <p id="first-paragraph">Wally The Warthog is a great pet</p>
+      <p id="second-paragraph">Wally eats a lot of grass</p>
+      <div class="wrapper">
+          <button onclick="allBlue()">How about making everything blue?</button>
+          <button onclick="allRed()">How about making everything red?</button>
+      </div>
+      <!-- task: think about how to add an inline event listener here and make this dynamic - so when a user clicks the button, all text on your page turns blue (and red); -->
+      <script>
+          let title = document.getElementById('title');
+          let para1 = document.getElementById('first-paragraph');
+          let para2 = document.getElementById('second-paragraph');
+          let arr = [title, para1, para2]
+          function allBlue() {
+              for (var i=0; i<arr.length; ++i) {
+                  arr[i].style.color="blue";
+              }
+          }
+          function allRed() {
+              for (var i=0; i<arr.length; ++i) {
+                  arr[i].style.color="red";
+              }
+          }
+      </script>
+  </body>
+  </html>
+  ```
+
+  
+
+### Inline Properties
+
+`<button id="btn">Click me</button>`
+
+```js
+let btn = document.getElementById('btn');
+btn.onclick = () => {
+  alert("BOOM");
+}
+```
+
+very similar to the inline event listener
+
+both approaches attach an event listener as a property on HTML element
+
+but, it sets property by using javascript
+
+it starts from accessing the button.
+
+- test
+
+  ```js
+  // (1) add an inline property to the anchor tag by using JavaScript; 
+  // and (2)  effect the CSS of the <div> element with ID of content.
+  
+  let ancBtn = document.getElementById("show-more");
+  let contents = document.getElementById("content");
+  ancBtn.onclick = () => {
+    if (ancBtn.innerText == "Show More") { // expand
+      ancBtn.innerText = "Collapse";
+      contents.style.maxHeight = "100%";
+    } else { // shrink
+      contents.style.maxHeight = "148px";
+      ancBtn.innerText = "Show More";
+    }
+  }
+  ```
+
+  using class of elements(`if (contents.className = 'open')`) would be more elegant way
+
+### addEventListener()      
+
+`<button id="btn">Click me</button>`
+
+```js
+let btn = document.getElementById('btn');
+btn.addEventListener('click', boom);
+function boom() {
+  alert("BOOM");
+}
+```
+
+this is the latest standard and recommended way of attaching event listeners.
+
+it attaches a method to a DOM element, rather than attaching an attribute.
+
+this event listener will **listen** or watch for an event being fired on the element.
+
+when the event fires, it automatically gives us access to the **event** object.
+
+(usually name this object `e`, but call it whatever you like)
+
+addEventListener() is not js but DOM API
+
+> People confuse what's Javascript and what's DOM API. 
+>
+> Because Web APIs are mostly used with JS, but you don't strictly have to always use JS.
+
+`element.addEventListener(event, callback)`
+
+- event is the action we're watching out for(onclick, hover)
+- callback is event handler
+- target(the element that fired the event) will automatically be given to us in the callback function
+
+
+
+### callback functions
+
+callback function is a function to be called after something else has happened
+
+the first argument to the addEventListener is the event
+
+the second argument is the event handler, which is a callback function
+
+this callback function is automatically executed when the event fires
+
+data about the event is given to us automatically through this callback
+
+: target, where the event occurred, type of event...
+
+```js
+let h1 = document.querySelector(".title");
+h1.addEventListener("click", (data) => {
+  console.log(data)
+})
+// data in this case is MouseEvent object(it has all the information we want to know)
+```
+
+a callback function is just a function which is
+
+- accessible by another function; and
+- invoked after the first function completes
+- it is passed as an argument to anothier function
+- it is executed inside of the function it was passed into
+
+
+
+why do we need callbacks?
+
+- to run code in response to somthing happening
+
+- to stop a process from blocking out other code
+
+  > client-side JS runs in the browser. but this JS process is a single threaded event loop. it means that if we try to execute long-running operations within a single-threaded event loop, these processes will be blocked. this is bad because this will stop other JS code executing and we'll have to wait for the operation to complete.
+  >
+  > in order to prevent blocking on long-running operations, callbacks are typically used.
+
+
+
+- how do we set colors
+
+  - keyword: case insensitive `red`
+
+  - HSL system: hue, saturation and lightness. extra alpha `hsl(9, 100%, 14%)`
+
+  - RGB system: red, green and blue. hexadecimal(`#ff0000`) or functional notations(`rgb(255, 0, 0)`).
+
+  - make event handler which changes the color of element randomly
+
+    ```js
+    let circle = document.getElementById("circle");
+    function randomGenerator() {
+      let randomColor = Math.floor(Math.random() * 16777216).toString(16); // hex
+      circle.style.backgroundColor = '#'+randomColor;
+    }
+    circle.addEventListener("click", randomGenerator);
+    ```
+
+    there is 6 digit in rgb, each digit can have 16 options(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, A, B, C, D, E, F)
+
+    so, `16^6` = `256*256*256` = `16777216`
+
+    this number includes 0.
+
+    `Math.random() * 16777216` = random number between 0 and 16777215.999
+
+    `Math.floor()` will round down to nearest whole number.
+
+    `Math` object is a JS object, available to us automatically in every borwser
+
+    `toString()` method converts an object( or number) to a stirng. 
+
+    - every object has a toString() method. 
+    - this function accepts a single optional parameter base. 
+      the base specifies how the integer should be represented in string.
+
 ## Different types of events
 
 ## Event Challenges
