@@ -667,6 +667,231 @@ uses `div.previousElementSibling`
 
 ## Creating, Removing and Cloning DOM Elements
 
+- static website: Elements are added to the page by directly writing code in html file
+
+  dynamic website: Elements are added with JS
+
+  
+
+- createElement: DOM API
+
+  adds an HTML Element to the DOM
+
+  the most common way of creating am element
+
+  it's in the Document object
+
+  
+
+  call createElement on document object
+
+  `document.createElement(<html tag name>);`
+
+  
+
+  ```js
+  let newPara = document.createElement('p');
+  console.log(newPara); // <p></p>
+  
+  let html = document.documentElement;
+  console.log(html);
+  ```
+
+  when you log html variable, 
+
+  you can see there is no `<p></p>` in the html
+
+  it means element is not added to the document
+
+  by just call createElement on document
+
+  
+
+  the newPara variable held a reference to newly created `<p>` element(which is not in the DOM)
+
+  in order for this element to ba a part of the DOM,
+
+  we need somewhere to put it
+
+  1. find a parent
+  2. attach it to the parent: `appendChild()`
+
+  
+
+  add a text to newly created p element by using the `textContent` property
+
+  `newPara.textContent = "I'm kinda NEW";`
+
+  innerHTML can be used too
+
+  but innerHTML exposes your site to possible cross-site scripting
+
+  because inline JS can be added to an element
+
+  textContent is safer as it strips out the HTML tag
+
+  
+
+- Document VS. document
+
+  - `console.dir(document)`
+
+  - `_proto_` of document is the HTMLDocument
+
+  - `window.document.constructor` => HTMLDocument
+
+    document object is constructed from the HTMLDocument constructor
+
+  - `window.document.nodeType` => 9(DOCUMENT_NODE)
+
+  - the HTMLDocument constructor function creates the document
+
+  - the document is a DOCUMENT_NODE object which ingerits from the Document node
+
+  - the Document node is not the root of the page
+
+    first Element node in the Document is the root, 
+
+    and that is the html element
+
+  - HTML element is the root of our HTML document
+
+    when this HTML file is looked in our browser,
+
+    it becomes the document object
+
+  - Document is the ultimate node from which our document inherits from
+
+  
+
+- appendChild
+
+  attached element to a parent
+
+  it always adds the element to become the **last** child of the parent
+
+  if body - h1 - script.appendChild('p'),
+
+  p would be added after the `<script>` 
+
+  
+
+  there are multiple methods of adding elements
+
+  - appendChild()
+
+  - insertBefore()
+
+  - replaceChild()
+
+    
+
+- insertBefore
+
+  two arguments
+
+  1. first: element you wnat to insert
+  2. second: a reference to the siblings you want to **precede**
+
+  
+
+  `bodyElement.insertBefore(newElement, scriptElement);`
+
+  newElement is inserted before scriptElement 
+
+  
+
+  there is NO insertater but you can trick the browser 
+
+  by combining `insertBefore()` with `node.nextSibling`
+
+  body - h1("I am title") - script
+
+  ```js
+  let h1Element = document.querySelector('h1');
+  let bodyElement = document.querySelector('body');
+  let h1NextElement = h1Element.nextElmentSibling;
+  bodyElement.insertBefore(newElement, h1NextElmeent);
+  ```
+
+  it's convenient when you don't know the next Element.
+
+  
+
+- remove elements
+
+  remove nodes from the DOM
+
+  `parentNode.removeChild()`
+
+  
+
+  this method will not travel up and down the DOM to find the elemnt
+
+  we have to call removeChild from the parent of the child we want to remove
+
+  
+
+  what do we do if we don't have direct access to an elements parent?
+
+  `newElement.parentNode.removeChild(newElement);`
+
+  
+
+  `remove()` is kinda new method(from 2011) that not all browser support it
+
+  just use removeChild to be safe
+
+  `newElement.remove();`
+
+  remove children, grand children...too
+
+  
+
+- clone
+
+  creating identical replicas
+
+  cloneNode() on the element we wish to clone
+
+  
+
+  we also need to provide a true or false argument
+
+  `node.cloneNode(true);` clone all the children too
+
+  `node.cloneNode(false);` clone the element only
+
+  
+
+  ```js
+  let bodyElement = document.querySelector('body');
+  let paraElement = document.querySelector('.message');
+  
+  function cloning() {
+    // passing 'true' to clone text, too
+  	let clonedText = paraElement.cloneNode(true);
+    bodyElement.appendChild(clonedText);
+  }
+  
+  // execute cloning every one seconde
+  setInterval(cloning, 1000);
+  ```
+
+  setInterval is a built in DOM function from the window object
+
+  
+
+  cloning a node copies all of the node's attributes and values,
+
+  including inline event listeners(not be addEventListener)
+
+  it copy and paste elements as a block
+
+  it's a deep copy(copies all the descendants and any nodes contained within the items and the descendants)
+
+
+
 ## Introduction to Events
 
 you need to know about event to create dynamic pages
