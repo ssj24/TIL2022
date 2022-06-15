@@ -801,7 +801,7 @@ uses `div.previousElementSibling`
 
   
 
-  there is NO insertater but you can trick the browser 
+  there is NO insertAfter but you can trick the browser 
 
   by combining `insertBefore()` with `node.nextSibling`
 
