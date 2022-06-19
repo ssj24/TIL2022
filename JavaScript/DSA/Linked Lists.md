@@ -202,4 +202,210 @@ LinkedList 클래스로 노드 삽입, 제거, 리스트 표시 및 다른 기�
 
      삭제할 노드의 앞에 있는 노드가 삭제할 노드의 뒤에 있는 노드를 가리키게 만든다
 
-![](examples/Linked lists/Llist.png)
+![](examples/Linkedlists/Llist.png)
+
+
+
+## Doubly Linked Lists
+
+이중 연결 리스트
+
+연결 리스트의 첫 노드부터 끝 노드까지 움직이는 것은 쉽지만
+
+반대 방향은 쉽지 않다
+
+이를 쉽게 하려면 Node 클래스에 이전 노드 링크를 저장하는 속성을 만들면 된다
+
+이전 노드를 저장하면 노드를 삭제할 때 좀 더 효율적이다
+
+(이전 노드를 찾을 필요가 없으므로)
+
+
+
+```js
+function Node(element) {
+  // ...
+  this.previous = null;
+}
+
+function LList() {
+	// ...
+  this.findLast = findLast;
+  this.dispReverse = dispReverse;
+}
+
+function insert(newElement, item) {
+  // ...
+	newNode.previous = current;
+}
+```
+
+![](examples/Linkedlists/LList2.png)
+
+remove()
+
+- 삭제하고자 하는 노드를 찾아서 
+- 삭제 노드 next를 삭제 노드 이전 노드의 next에 할당하고
+- 삭제 노드의 previous 속성을 다음 노드의 previous에 할당한다
+
+
+
+## Circularly Linked Lists
+
+원형 연결 리스트
+
+연결 리스트를 끝에서 처음으로 하는 검색도 가능하게 하고 싶은데
+
+이중 연결 리스트를 만들어서 무겁게 하고 싶지는 않을 때 좋다
+
+
+
+일반 연결 리스트와 흡사하지만 
+
+원형 연결 리스트의 헤드 노드의  next 속성은 스스로를 가리키고 있다
+
+이 next 속성은 새로운 노드가 삽입될 때마다 상속되면서
+
+원형 연결 리스트의 마지막 노드는 항상 헤드를 가리키게 된다
+
+```js
+function LList() {
+    this.head = new Node("head");
+    this.head.next = this.head;
+		// ...
+}
+```
+
+
+
+원형 연결 리스트에서 똑같이 동작하기 위해서는 함수들을 조금씩 바꿔줘야 한다
+
+1. display()
+
+   마지막 노드에서 다시 첫 노드로 돌아가기 때문에 
+
+   무한 반복을 막기 위해서 while 조건문을 다음과 같이 바꿔준다
+
+   ```js
+   while(
+     !(currNode.next == null) && 
+     !(currNode.next.element == "head")
+   ) { ... }
+   ```
+
+2. find()
+
+   ```js
+   while (
+     currNode.element != item &&
+     !(currNode.next.element == "head")
+   ) { ... }
+   ```
+
+3. findPrevious()
+
+   ```js
+   while (
+     !(currNode.next.element == "head") &&
+     (currNode.next.element != item)
+   ) { ... }
+   ```
+
+4. remove()
+
+   기존의 remove()를 고치지 않으면 존재하지 않는 데이터를 지우려고 했을 때,
+
+   findPrevious()가 마지막 노드를 반환하고(3번에서 수정한 결과!)
+
+   그러면 remove()가 `prevNode.next = prevNode.next.next;`로 만들어서
+
+   마지막 노드의 다음 노드(head)의 다음 노드, 즉 첫 번째 노드를 가리키게 되어
+
+   이 상태에서 display()를 하면 무한 반복되게 된다 
+
+   ```js
+   if (
+     !(prevNode.next == null) && 
+     !(prevNode.next.element == "head")
+   ) { ... }
+   ```
+
+
+
+## 다른 기능들
+
+연결 리스트를 잘 활용하기 위해서는 다른 기능들도 필요할 것이다
+
+예를 들면
+
+1. advance(n)
+
+   연결 리스트에서 n개 앞의 노드로 이동
+
+2. back(n)
+
+   이중 연결 리스트에서 n개 뒤의 노드로 이동
+
+3. show()
+
+   현재 노드 표시
+
+
+
+## Exercises
+
+1. advance(n) 함수를 만들어보자
+
+   3번 show() 함수와 함께 만들겠다
+
+   이 때, 현재 노드는 삽입시 삽입된 노드, 삭제시 삭제 이전 노드라고 가정하겠다
+
+   ![](examples/Linkedlists/E1.png)
+
+   LList 클래스에 `this.curr`을 만들어 처음에는 this.head를 할당했다
+
+   insert와 remove 함수의 마지막에 this.curr을 할당하는 작업도 추가했다
+
+   
+
+2. back(n) 함수를 만들어보자
+
+   ![](examples/Linkedlists/E2.png)
+
+   
+
+3. show() 함수를 만들어보자
+
+   
+
+4. 시험 점수 세트를 입력받는 연결 리스트 프로그램 만들기
+
+   문제가 원하는 바가 여러 개의 데이터를 입력받는 프로그램이라고 가정했다
+
+   ![](examples/Linkedlists/e4.png)
+
+   insert의 코드도 약간 수정했다
+
+   `var current = typeof item == "object" ? item : this.find(item);`
+
+   multiInsert에서 this.curr.element를 보내주면 수정을 하지 않아도 되지만 
+
+   find를 쓰지 않도록 하기 위해서 코드를 수정했다
+
+   `mathGrades.display()`의 결과는 `95 11 80 2 60`이었다
+
+   
+
+5. 4번을 이중 연결 리스트를 이용해 만들어보자
+
+   4번과 똑같이 수정하면 된다
+
+   
+
+6. n명의 사람들이 원형으로 둘러서 있을 때, m번째 사람이 계속 죽는다고 하자(3이면 3, 6, 9, ...) 마지막 두 사람이 되려면 몇 번째에 위치해야 하는지 구하는 프로그램을 만들어라 원형 연결 리스트를 이용해야 한다
+
+   인덱스를 추가해서 위치를 말해야하나 싶었는데 어차피 삭제되니까 그냥 해당 엘리먼트를 반환하는 프로그램을 짰다
+
+   ![](examples/Linkedlists/E6.png)
+
+   이 파일을 실행하면 g와 q가 나온다
