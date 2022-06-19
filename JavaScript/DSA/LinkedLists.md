@@ -382,7 +382,7 @@ function LList() {
 
    문제가 원하는 바가 여러 개의 데이터를 입력받는 프로그램이라고 가정했다
 
-   ![](examples/Linkedlists/e4.png)
+   ![](examples/Linkedlists/E4.png)
 
    insert의 코드도 약간 수정했다
 
