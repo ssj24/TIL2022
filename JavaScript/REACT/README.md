@@ -1217,6 +1217,417 @@ state는 클래스형 컴포넌트의 것과 함수 컴포넌트의 것, 두 종
 
 ## 이벤트 핸들링
 
+이벤트: 사용자가 웹 브라우저에서 DOM 요소들과 상호 작용하는 것
+
+- 주의 사항
+
+  1. 이벤트 이름은 카멜 표기법
+
+     onclick이 아니라 onClick
+
+  2. 함수 형태의 값 전달
+
+     HTML은 자바스크립트 코드를 넣었지만 리액트는 함수 형태의 객체를 전달해야 한다
+
+     함수를 바로 만들어서 전달하거나
+
+     렌더링 부분 외부에 미리 만들어서 전달
+
+  3. DOM요소에만 이벤트를 설정할 수 있다
+
+     직접 만든 컴포넌트에는 이벤트 설정 불가
+
+     `<MyComponent onClick={doSomething}>`
+
+     이건 그냥 onClick이라는 props를 컴포넌트에 전달하는 것일 뿐이다
+
+     하지만 전달받은 props를 컴포넌트 내부의 돔 이벤트로 설정할 수는 있다
+
+     `<div onClick={this.props.onClick}>`
+
+- 리액트가 지원하는 이벤트 종류
+
+  - clipboard
+  - composition
+  - keyboard
+  - focus
+  - form
+  - mouse
+  - selection
+  - touch
+  - UI
+  - wheel
+  - media
+  - image
+  - animation
+  - transition
+
+- https://reactjs.org/docs/events.html 참고
+
+- 실습
+
+  - EventPractice.js
+
+    ```react
+    render() {
+      return (
+        <div>
+          <h1>practice event</h1>
+          <input
+            type="text"
+            name="message"
+            placeholder="여기에 입력해주세요"
+            onChange={
+              (e) => {
+                console.log(e.target.value);
+              }
+            }
+          />
+          </div>
+        );
+      }
+    ```
+
+    e는 SyntheticEvent로 웹 브라우저의 네이티브 이벤트를 감싸는 객체다
+
+    네이티브 이벤트와 인터페이스가 같으므로 순수 JS에서 HTML 이벤트를 다룰 때와 똑같이 사용하면 된다
+
+    SyntheticEvent는 네이티브 이벤트와 달리 이벤트가 끝나고 나면 초기화되므로 정보를 참조할 수 없다
+
+    비동기적으로 이벤트 객체를 참조해야 한다면 `e.persist()`를 호출해야 한다
+
+    
+
+    - state에 인풋 값 담기
+
+      ```react
+      state = {
+          message: ''
+        }
+        render() {
+          return (
+            <div>
+              <h1>practice event</h1>
+              <input
+                type="text"
+                name="message"
+                placeholder="여기에 입력해주세요"
+                value={this.state.message}
+                onChange={
+                  (e) => {
+                    this.setState({
+                      message: e.target.value
+                    })
+                  }
+                }
+              />
+            </div>
+          );
+        }
+      ```
+
+    
+
+    - 버튼 누르면 comment 값을 공백으로
+
+      ```react
+      <button onClick={
+          () => {
+            this.setState({
+              message: ''
+            })
+          }
+      }>
+      ```
+
+    
+
+    - 임의 메서드를 만드는 방법으로 바꿔보기
+
+      함수 형태의 값을 전달할 때, 함수를 미리 준비해서 전달하는 방법
+
+      성능상으로 차이는 거의 없지만 가독성이 좋다
+
+      ```react
+      class EventPractice extends Component {
+        state = {
+          message: ''
+        }
+      
+        constructor(props) {
+          super(props);
+          this.handleChange = this.handleChange.bind(this);
+          this.handleClick = this.handleClick.bind(this);
+        }
+      
+        handleChange(e) {
+          this.setState({
+            message: e.target.value
+          });
+        }
+      
+        handleClick() {
+          this.setState({
+            message: ''
+          })
+        }
+      
+        render() {
+          return (
+            <div>
+              <h1>practice event</h1>
+              <input
+                type="text"
+                name="message"
+                placeholder="여기에 입력해주세요"
+                value={this.state.message}
+                onChange={this.handleChange}
+              />
+              <button onClick={this.handleClick}>
+                확인
+              </button>
+            </div>
+          );
+        }
+      }
+      ```
+
+      this는 함수 호출부에 따라 결정되므로 this가 컴포넌트 자신을 가리키게 하기 위해 메서드를 this와 바인딩한다(바인딩하지 않으면 this가 undefined)
+
+      메서드 바인딩을 바벨의 transform-class-properties 문법을 사용하여 화살표 함수 형태로 정의하면 더 간단하게 할 수도 있다
+
+      ```react
+      class EventPractice extends Component {
+        state = {
+          message: ''
+        }
+      
+        handleChange = (e) => {
+          this.setState({
+            message: e.target.value
+          });
+        }
+      
+        handleClick = () => {
+          this.setState({
+            message: ''
+          })
+        }
+      
+        render() {
+          return (
+            <div>
+              <h1>practice event</h1>
+              <input
+                type="text"
+                name="message"
+                placeholder="여기에 입력해주세요"
+                value={this.state.message}
+                onChange={this.handleChange}
+              />
+              <button onClick={this.handleClick}>
+                확인
+              </button>
+            </div>
+          );
+        }
+      }
+      ```
+
+      
+
+    - input이 여러 개라면?
+
+      event 객체 활용하기
+
+      `e.target.name`
+
+      name을 쓰면 된다!
+
+      ```react
+      class EventPractice extends Component {
+        state = {
+          username: '',
+          message: ''
+        }
+      
+        handleChange = (e) => {
+          this.setState({
+            [e.target.name]: e.target.value
+          });
+        }
+      
+        handleClick = () => {
+          this.setState({
+            username: '',
+            message: ''
+          })
+        }
+      
+        render() {
+          return (
+            <div>
+              <h1>practice event</h1>
+              <input
+                type="text"
+                name="username"
+                placeholder="사용자명"
+                value={this.state.username}
+                onChange={this.handleChange}
+              />
+              <input
+                type="text"
+                name="message"
+                placeholder="여기에 입력해주세요"
+                value={this.state.message}
+                onChange={this.handleChange}
+              />
+              <button onClick={this.handleClick}>
+                확인
+              </button>
+            </div>
+          );
+        }
+      }
+      ```
+
+      `this.setState({ [e.target.name]: e.target.value });`
+
+      이렇게 객체 안에서 key를 []로 감싸면 그 안에 넣은 **레퍼런스가 가리키는 실제 값**이  key 값으로 사용된다
+
+    - onKeyPress
+
+      ```react
+      handleKeyPress = (e) => {
+        if (e.key === 'Enter') {
+          this.handleClick();
+        }
+      }
+      render() {
+        <input
+          type="text"
+          name="message"
+          placeholder="여기에 입력해주세요"
+          value={this.state.message}
+          onChange={this.handleChange}
+          onKeyPress={this.handleKeyPress}
+        />
+      }
+      ```
+
+      인풋에서 엔터키를 치면 버튼을 누른 것과 같은 효과!
+
+    
+
+  - 함수 컴포넌트로 구현해보기
+
+    ```react
+    import React, {useState} from 'react';
+    
+    const EventPractice = () => {
+      const [username, setUsername] = useState('');
+      const [message, setMessage] = useState('');
+      const onChangeUsername = e => setUsername(e.target.value);
+      const onChangeMessage = e => setMessage(e.target.value);
+      const onClick = () => {
+        setUsername('');
+        setMessage('');
+      };
+      const onKeyPress = e => {
+        if (e.key === 'Enter') {
+          onClick();
+        }
+      };
+      return (
+        <div>
+          <h1>practice event</h1>
+          <input
+            type="text"
+            name="username"
+            placeholder="사용자명"
+            value={username}
+            onChange={onChangeUsername}
+          />
+          <input
+            type="text"
+            name="message"
+            placeholder="여기에 입력해주세요"
+            value={message}
+            onChange={onChangeMessage}
+            onKeyPress={onKeyPress}
+          />
+          <button onClick={onClick}>
+            확인
+          </button>
+        </div>
+      );
+    };
+    
+    export default EventPractice;
+    ```
+
+    인풋이 두 개밖에 없다면 위처럼 onChange 함수를 두 개 만들어도 되겠찌만
+
+    여러개라면..? 여기서도 e.target.name 활용하기
+
+    ```react
+    import React, {useState} from 'react';
+    
+    const EventPractice = () => {
+      const [form, setForm] = useState({
+        username: '',
+        message: ''
+      });
+      const {username, message} = form;
+      const onChange = e => {
+        const nextForm = {
+          ...form, // 기존의 form내용 복사
+          [e.target.name]: e.target.value // 원하는 값 덮어 씌우기
+        };
+        setForm(nextForm);
+      };
+    
+      const onClick = () => {
+        setForm({
+          username: '',
+          message: ''
+        })
+      };
+      const onKeyPress = e => {
+        if (e.key === 'Enter') {
+          onClick();
+        }
+      };
+      return (
+        <div>
+          <h1>practice event</h1>
+          <input
+            type="text"
+            name="username"
+            placeholder="사용자명"
+            value={username}
+            onChange={onChange}
+          />
+          <input
+            type="text"
+            name="message"
+            placeholder="여기에 입력해주세요"
+            value={message}
+            onChange={onChange}
+            onKeyPress={onKeyPress}
+          />
+          <button onClick={onClick}>
+            확인
+          </button>
+        </div>
+      );
+    };
+    
+    export default EventPractice;
+    ```
+
+    
+
 ## ref: DOM에 이름달기
 
 ## 컴포넌트 반복
