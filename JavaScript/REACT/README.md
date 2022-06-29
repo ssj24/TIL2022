@@ -1630,9 +1630,837 @@ state는 클래스형 컴포넌트의 것과 함수 컴포넌트의 것, 두 종
 
 ## ref: DOM에 이름달기
 
+HTML에서 돔 요소에 이름을 달 때 id를 사용하는 것처럼
+
+리액트에서 돔에 이름을 다는 방법이 바로 ref(reference)
+
+물론 리액트에서도 id를 사용할 수는 있지만
+
+같은 컴포넌트를 여러 번 사용한다면 중복 id가 생기는 것이니
+
+컴포넌트 내부에서만 작동하는 ref를 쓰는 것이 좋다
+
+다른 라이브러리 / 프레임워크와 함께 id를 사용해야 하는 상황이라면
+
+컴포넌트를 만들 때마다 id 뒷부분에 추가 텍스트를 붙여야 한다
+
+(btn01, btn02...)
+
+
+
+### ref를 사용하는 상황
+
+ref는 <u>돔을 꼭 직접적으로 건드려야 할 때</u> 사용한다
+
+
+
+App 컴포넌트에서  ref를 사용하려면 클래스형 컴포넌트로 작성..
+
+
+
+state를 사용해서 돔을 조정할 수도 있지만
+
+- 특정 input에 포커스 주기
+- 스크롤 박스 조작하기
+- canvas 요소에 그림 그리기 등
+
+state만으로 해결할 수 없는 기능들이 있다
+
+이럴 때 돔에 직접적으로 접근하는 ref를 사용한다
+
+
+
+### ref 사용
+
+1. 콜백 함수
+
+   ref를 달고자 하는 요소에 ref라는 콜백 함수를 props로 전달해 준다
+
+   이 콜백 함수는  ref 값을 파라미터로 전달받아 컴포넌트의 멤버 변수로 설정한다
+
+   `<input ref={(ref) => {this.input=ref}} />`
+
+   위 상황에서 this.input은 인풋 요소의 돔을 가리킨다
+
+   ref의 이름은 마음대로 지정할 수 있다
+
+   돔 타입과 관계없이 `this.super = ref`도 가능
+
+   
+
+   버튼 클릭시 해당 버튼이 아니라 input에 포커스가 가게 만들기
+
+   ```react
+   handleButtonClick = () => {
+     this.setState({
+       clicked: true,
+       validated: this.state.password === '0000'
+     });
+     this.input.focus();
+   }
+   
+   <input
+     ...
+     ref={(ref) => this.input=ref}
+   />
+   ```
+
+   
+
+2. createRef
+
+   createRef()는 리액트 내장 함수로 v16.3부터 도입되었다
+
+   ```react
+   class CreateRef extends Component {
+     input = React.createRef();
+   
+     handleFocus = () => {
+       this.input.current.focus();
+     }
+   
+     render() {
+       return (
+         <div>
+           <input ref={this.input} />
+         </div>
+       );
+     }
+   }
+   ```
+
+   우선 컴포넌트 내부에서 멤버 변수로  React.createRef()를 담는다
+
+   해당 멤버 변수를  ref를 달고자 하는 요소에  ref props로 넣어 주면 설정 완료.
+
+   나중에 ref를 설정한 돔에 접근하려면 `this.input.current`를 조회한다
+
+   뒤에 `.current`를 넣어줘야 한다!
+
+   
+
+### 컴포넌트에 ref 달기
+
+컴포넌트에  ref를 다는 것은 주로 컴포넌트 내부에 있는 돔을 컴포넌트 외부에서 사용할 때 쓴다
+
+방법은 돔에  ref를 다는 방법과 같다
+
+`<MyComponent ref={(ref) => {this.myComponent=ref}} />`
+
+이렇게 하면 MyComponent 내부의 메서드 및 멤버 변수에도 접근할 수 있다
+
+즉, 내부의  ref에도 접근할 수 있게 된다
+
+(`myComponent.handleClick`같은 식으로)
+
+
+
+- 스크롤 박스가 있는 컴포넌트의 스크롤바를 아래로 내리는 작업을 부모에서 실행하기
+
+  - 스크롤 박스 컴포넌트 만들기
+
+    ```react
+    class ScrollBox extends Component {
+      render() {
+        const style = {
+          border: '1px solid black',
+          height: '300px',
+          width: '300px',
+          overflow: 'auto',
+          position: 'relative'
+        };
+    
+        const innerStyle = {
+          width: '100%',
+          height: '650px',
+          background: 'linear-gradient(white, black)'
+        }
+    
+        return (
+          <div
+            style={style}
+            ref={(ref) => {this.box=ref}}
+          >
+            <div style={innerStyle} />
+          </div>
+        );
+      }
+    }
+    ```
+
+    
+
+  - 컴포넌트에 ref 달기
+
+    - 💡스크롤바 내릴 때 DOM 노드 값
+
+      scrollTop: 세로 스크롤바 위치(0~350)
+
+      scrollHeight: 스크롤 있는 박스 안의  div 높이(650)
+
+      clientHeight: 스크롤이 있는 박스의 높이(300)
+
+      괄호 안의 값은 우리가 설정한 값
+
+      스크롤바를 맨 아래쪽으로 내리려면  `scrollHeight - clientHeight`
+
+    - ```react
+      scrollToBottom = () => {
+          const {scrollHeight, clientHeight} = this.box;
+          this.box.scrollTop = scrollHeight - clientHeight;
+        }
+      ```
+
+      이 메서드를 ScrollBox.js에 추가
+
+      
+
+  - ref를 이용해서 컴포넌트 내부 메서드 호출하기
+
+    ```react
+    class App extends Component {
+      render() {
+        return (
+          <div className="pad30">
+            <ScrollBox ref={(ref) => this.scrollBox=ref} />
+            <button onClick={() => this.scrollBox.scrollToBottom()}>
+              Bottom
+            </button>
+          </div>
+        );
+      }
+    }
+    ```
+
+    `onClick = {this.scrollBox.scrollToBottom}`도 틀린 문법은 아니다
+
+    하지만 컴포넌트가 처음 렌더링될 때는  this.scrollBox 값이 undefind라서 오류가 발생할 수 있다
+
+    화살표 함수 문법을 사용하면 아예 새로운 함수를 만들고
+
+    그 내부에서 this.scrollBox.scrollToBottom 메서드를 실행하면,
+
+    버튼을 누를 때(이미 렌더링을 해서  this.scrollBox를 설정한 시점)
+
+    this.scrollBox.scrollToBottom 값을 읽어 오므로 오류가 나지 않는다
+
+
+
+서로 다른 컴포넌트끼리 데이터를 교류할 때 ref르 사용한다면 잘못된 것이다
+
+리액트 사상에 어긋나는 방법(하려면 할 수는 있겠지만)
+
+컴포넌트끼리 데이터를 교류할 때는 언제나 부모 자식간에 교류해야 한다
+
+
+
 ## 컴포넌트 반복
 
+ul 내부의 li처럼 반복되는 형태의 코드를 작성해야 할 때가 있다
+
+이렇게 반복적인 내용을 효율적으로 보여주고 관리하는 방법은 무엇일까?
+
+
+
+### JS 배열의 map()
+
+JS 배열 객체의 내장 함수인 map()을 사용하여 반복되는 컴포넌트를 렌더링할 수 있다
+
+map함수는 파라미터로 전달된 함수를 사용해서
+
+배열 내 각 요소를 원하는 규칙에 따라 변환한 후 그 결과로 새로운 배열을 생성한다
+
+- `arr.map(callback, [thisArg])`
+
+  - callback:  새로운 배열의 요소를 생성하는 함수
+    - currentValue: 현재 처리 요소
+    - index
+    - array:  현재 처리하고 있는 원본 배열
+  - thisArg(선택): 콜백 함수 내부에서 사용할 this reference
+
+- ``` js
+  var numbers = [1, 2, 3, 4, 5];
+  var processed = numbers.map(function(num) {
+    return num * num;
+  });
+  
+  console.log(processed);// [1, 4, 9, 16, 25]
+  ```
+
+  이걸 ES6문법으로(const, 화살표 함수)
+
+  ```js
+  const numbers = [1, 2, 3, 4, 5];
+  const result = numbers.map(num => num * num);
+  console.log(result);
+  ```
+
+
+
+### 데이터 배열 => 컴포넌트 배열
+
+리액트에서 key는 컴포넌트 배열을 렌더링했을 때 어떤 원소에 변동이 있었는지 알아내기 위해 사용한다
+
+key값을 설정할 때는 map 함수의 인자로 전달되는 함수 내부에서 컴포넌트 props를 설정하듯이 설정하면 된다
+
+key값은 언제나 유일해야 하므로 데이터가 가진 고윳값으로 설정해야 한다
+
+고유한  id 등이 없다면 인덱스로 설정해도 된다
+
+그러나 인덱스를 키로 사용하면 배열이 변경될 때 비효율적인 리렌더링이 이루어진다
+
+```react
+const IterationSample = () => {
+  const names = ['a', 'b', 'c', 'd'];
+  const nameList = names.map((name, index) => <li key={index}>{name}</li>);
+
+  return (
+    <div>
+      <ul>{nameList}</ul>
+    </div>
+  );
+};
+```
+
+
+
+### 동적인 배열 리렌더링
+
+고정된 배열이 아닌 동적인 배열.
+
+인덱스 값을 키로 사용하면 비효율적이므로 고윳값을 만드는 방법도 배워보자
+
+1. 초기 상태 설정하기
+
+   useState를 사용하여
+
+   데이터 배열 상태, 
+
+   텍스트를 입력할 수 있는  input 상태, 
+
+   새로운 항목 추가할 때 사용할 고유 id를 위한 상태
+
+   이 세 가지를 설정한다
+
+   객체 형태로 이루어진 배열을 만들어 문자열과 고유 id 값을 가지고 있다
+
+2. 데이터 추가 기능 구현하기
+
+   ```react
+   import React, { useState } from 'react';
+   
+   const IterationSample = () => {
+     const [names, setNames] = useState([
+       { id: 1, text: 'a'},
+       { id: 2, text: 'aa'},
+       { id: 3, text: 'aaa'},
+       { id: 4, text: 'aaaa'},
+     ]);
+     const [inputText, setInputText] = useState('');
+     const [nextId, setNextId] = useState(5); // 새로운 항목을 추가할 때 사용할 id
+   
+     const onChange = e => setInputText(e.target.value);
+   
+     const onClick = () => {
+       const nextNames = names.concat({
+         id: nextId,
+         text: inputText
+       });
+       setNextId(nextId + 1); // nextId 값에 1을 더해준다
+       setNames(nextNames); // names 값을 업데이트한다
+       setInputText(''); // inputText를 비운다
+     }
+     const namesList = names.map(name => <li key={name.id}>{name.text}</li>);
+   
+     return (
+       <>
+         <input value={inputText} onChange={onChange} />
+         <button onClick={onClick}>추가</button>
+         <ul>{namesList}</ul>
+       </>
+     );
+   };
+   
+   export default IterationSample;
+   ```
+
+   새 항목 추가할 때 배열의 push함수를 사용하지 않고 concat을 사용했다
+
+   push는 기존 배열 자체를 변경해 주지만
+
+   concat은 새로운 배열을 만들어 준다
+
+   
+
+   리액트에서 상태를 업데이트할 때는 기존 상태를 그대로 두면서 새로운 값을 상태로 설정해야 한다(불변성 유지)
+
+   불변성 유지를 해 줘야 리액트 컴포넌트의 성능 최적화할 수 있다
+
+3. 데이터 제거 기능 구현하기
+
+   불변성을 유지하면서 배열의 특정 항목을 지울 때는 배열의 내장 함수  filter를 사용한다
+
+   ```js
+   const numbers = [1, 2, 3, 4, 5, 6];
+   const biggerThanThree = numbers.filter(number => number > 3);
+   // [4, 5, 6]
+   ```
+
+   filter 함수의 인자에 분류하고 싶은 조건을 반환하는 함수를 넣어 준다
+
+   
+
+   항목을 더블클릭하면 해당 항목이 화면에서 사라지는 기능을 구현한다
+
+   ```react
+   import React, { useState } from 'react';
+   
+   const IterationSample = () => {
+     const [names, setNames] = useState([
+       { id: 1, text: 'a'},
+       { id: 2, text: 'aa'},
+       { id: 3, text: 'aaa'},
+       { id: 4, text: 'aaaa'},
+     ]);
+     const [inputText, setInputText] = useState('');
+     const [nextId, setNextId] = useState(5); // 새로운 항목을 추가할 때 사용할 id
+   
+     const onChange = e => setInputText(e.target.value);
+   
+     const onClick = () => {
+       const nextNames = names.concat({
+         id: nextId,
+         text: inputText
+       });
+       setNextId(nextId + 1); // nextId 값에 1을 더해준다
+       setNames(nextNames); // names 값을 업데이트한다
+       setInputText(''); // inputText를 비운다
+     };
+   
+     const onRemove = id => {
+       const nextNames = names.filter(name => name.id !== id);
+       setNames(nextNames);
+     }
+   
+     const namesList = names.map(name => (
+       <li key={name.id} onDoubleClick={() => onRemove(name.id)}>
+         {name.text}
+       </li>
+     ));
+   
+     return (
+       <>
+         <input value={inputText} onChange={onChange} />
+         <button onClick={onClick}>추가</button>
+         <ul>{namesList}</ul>
+       </>
+     );
+   };
+   
+   export default IterationSample;
+   ```
+
+
+
+상태 안에서 배열을 변형할 때는 배열에 직접 접근하여 수정하는 것이 아니라
+
+concat, filter 등의 배열 내장 함수를 사용해서 새로운 배열을 만든 후 이를 새로운 상태로 설정하자
+
+
+
 ## 컴포넌트의 라이프사이클 메서드
+
+모든 리액트 컴포넌트에는 수명 주기(라이프사이클)이 존재한다
+
+컴포넌트의 수명은 페이지에 렌더링되기 전인 준비 과정에서 시작하여 페이지에서 사라질 때 끝난다
+
+라이프사이클 메서드는 **클래스형 컴포넌트**에서만 사용할 수 있다
+
+함수 컴포넌트에서는 이것 대신  Hooks 기능을 사용해서 비슷한 작업을 한다
+
+
+
+## 라이프사이클 메서드
+
+아홉 종류
+
+- Will 접두사: 어떤 작업을 작동하기 전에 실행되는 메서드
+- Did 접두사: 어떤 작업을 작동한 후에 실행되는 메서드
+
+
+
+라이프사이클의 카테고리
+
+- 마운트: 페이지에 컴포넌트가 나타난다
+- 업데이트: 리렌더링으로 컴포넌트 정보를 업데이트한다
+- 언마운트: 페이지에서 컴포넌트가 사라진다
+
+
+
+### 마운트
+
+DOM이 생성되고 웹 브라우저상에 나타나는 것
+
+이 때 호출하는 메서드
+
+- 컴포넌트 만들기
+- constructor: 컴포넌트를 새로 만들 때마다 호출되는 클래스 생성자 메서드
+- getDerivedStateFromProps: props에 있는 값을 state에 넣을 때 사용하는 메서드
+- render: UI 렌더링 메서드
+- componentDidMount: 컴포넌트가 웹 브라우저상에 나타난 후 호출하는 메서드
+
+
+
+### 업데이트
+
+컴포넌트가 없데이트 되는 네 가지 경우
+
+- props가 바뀔 때
+- state가 바뀔 때: setState
+- 부모 컴포넌트가 리렌더링될 때
+- this.forceUpdate로 강제로 렌더링을 트리거할 때
+
+
+
+업데이트를 할 때 호출하는 메서드
+
+- 업데이트 요인
+
+- getDerivedStateFromProps: 마운트 중에도 호출되고 업데이트 시작 전에도 호출. props의 변화에 따라 state 값에도 변화를 주고 싶을 때 사용한다
+
+- shouldComponentUpdate
+
+  true면 render 호출
+
+  false면 작업(리렌더링) 취소
+
+  컴포넌트가 리렌더링을 해야 할지 말아야 할지 결정
+
+  만약 특정 함수에서 `this.forceUpdate()`를 호출한다면 이 과정을 생략하고 바로 render 함수 호출
+
+- render <= forceUpdate
+
+- getSnapshotBeforeUpdate: 컴포넌트 변화를 돔에 반영하기 바로 직전
+
+- 웹 브라우저상의 실제 돔 변화
+
+- componentDidUpdate: 컴포넌트의 업데이트 작업 끝난 후
+
+
+
+### 언마운트
+
+마운트의 반대 과정
+
+컴포넌트를 돔에서 제거하는 것
+
+componentWillUnmount만 호출된다
+
+이 메서드는 컴포넌트가 웹 브라우저상에서 사라지기 전에 호출된다
+
+
+
+### 라이프 사이클 메서드 살펴보기
+
+1. render()
+
+   컴포넌트 모양새를 정의한다
+
+   라이프 사이클 메서드 중 유일한 필수 메서드
+
+   this.props와 this.state에 접근 가능
+
+   (리액트 요소-div등 태그나 선언한 컴포넌트- 반환
+   아무것도 보여주고 싶지 않다면 null이나 false값 반환)
+
+   이 메서드 안에서는 이벤트 설정이 아닌 곳에서 setState를 사용하면 안 되며
+
+   브라우저의 돔에 접근해서도 안 된다
+
+   돔 정보를 가져오거나 state에 변화를 줄 때는 componentDidMount
+
+2. constructor
+
+   `constructor(props) {}`
+
+   컴포넌트의 생성자 메서드
+
+   컴포넌트를 만들 때 처음으로 실해오딘다
+
+   초기 state를 정한다
+
+3. getDerivedStateFromProps
+
+   v16.3 이후
+
+   props로 받아온 값을  state에 동기화시키는 용도
+
+   컴포넌트가 마운트될 때와 업데이트될 때 호출됨
+
+   ```react
+   static getDerivedStateFromProps(nextProps, prevState) {
+     if(nextProps.value !== prevState.value) {
+       return { value: nextProps.value };
+     }
+     return null; // state 변경할 필요가 없을 때
+   }
+   ```
+
+4. componentDidMount
+
+   컴포넌트를 만들고 첫 렌더링을 다 마친 후 실행
+
+   다른 JS 라이브러리 또는 프레임워크의 함수 호출, 이벤트 등록, setTimeout, setInterval, 네트워크 요청 등 비동기 작업 처리
+
+5. sholudComponentUpdate
+
+   `shouldComponentUpdate(nextProps, nextState) {}`
+
+   props / state 변경시, 리렌더링을 시작할지 여부 지정
+
+   true / false를 반드시 반환해야 한다
+
+   이 메서드를 컴포넌트를 만들 때 따로 생성하지 않으면 기본적으로 true 반환
+
+   false를 반환하면 업데이트가 여기서 중지된다
+
+   현재 props / state는 this.props / this.state로 접근하고
+
+   새로 설정될 props / state는 nextProps / nextState로 접근
+
+6. getSnapshotBeforeUpdate
+
+   v16.3
+
+   render에서 만들어진 결과물이 브라우저에 실제로 반영되기 직전에 호출
+
+   반환하는 값은 componentDidUpdate의 세 번재 파라미터인 snapshot 값으로 전달받을 수 있다
+
+   ```js
+   getSnapshotBeforeUpdate(prevProps, prevState) {//스크롤바 위치 유지
+     if(prevState.array !== this.state.array) {
+       const { scrollTop, scrollHeight } = this.list
+       return { scrollTop, scrollHeight };
+     }
+   }
+   ```
+
+7. componentDidUpdate
+
+   `componentDidUpdate(prevProps, prevState, snapshot) {}`
+
+   리렌더링 완료 후 실행
+
+   업데이트가 끝난 직후이므로, 돔 관련 처리를 해도 된다
+
+   prevProps, prevState를 사용하여 컴포넌트가 이전에 가졌던 데이터에 접근 가능
+
+   getSnapshotBeforeUpdate에서 반환한 값이 있다면 여기서 snapshot값을 전달받음
+
+8. componentWillUnmount
+
+   컴포넌트를 돔에서 제거할 때 실행
+
+   componentDidMount에서 등록한 이벤트, 타이머, 직접 생성한 돔이 있다면 여기서 제거
+
+9. componentDidCatch
+
+   v16
+
+   컴포넌트 렌더링 도중에 에러가 발생했을 때,
+
+   애플리케이션이 먹통이 되지 않고 오류 UI를 보여 줄 수 있게 해 준다
+
+   ```react
+   componentDidCatch(error, info) {
+     this.setState({
+       error: true
+     });
+     console.log({ error, info });
+   }
+   ```
+
+   error는 어떤 에러가 발생했는지
+
+   info는 어디에 있는 코드에서 오류가 발생했는지
+
+   이 메서드를 사용할 때는 컴포넌트 자신에게 발생하는 에러를 잡아낼 수 없고
+
+   자신의 this.props.children으로 전달되는 컴포넌트에서 발생하는 에러만 잡아낼 수 있다
+
+```react
+import React, { Component } from 'react';
+
+class LifeCycleSample extends Component {
+  state = {
+    number: 0,
+    color: null
+  }
+
+  myRef = null;
+
+  constructor(props) {
+    super(props);
+    console.log('constructor');
+  }
+
+  static getDerivedStateFromProps(nextProps, prevState) {
+    console.log('getDerivedStateFromProps');
+    if(nextProps.color !== prevState.color) {
+      return { color: nextProps.color};
+    }
+    return null;
+  }
+
+  componentDidMount() {
+    console.log('componentDidMount');
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    console.log('sholudComponentUpdate', nextProps, nextState);
+    // 숫자의 마지막 자리가 4면 리렌더링 x
+    return nextState.number % 10 !== 4;
+  }
+
+  componentWillUnmount() {
+    console.log('componentWillUnmount');
+  }
+
+  handleClick = () => {
+    this.setState({
+      number: this.state.number + 1
+    });
+  }
+
+  getSnapshotBeforeUpdate(prevProps, prevState, snapshot) {
+    console.log('getSnapshotBeforeUpdate');
+    if (prevProps.color !== this.props.color) {
+      return this.myRef.style.color;
+    }
+    return null;
+  }
+  
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    console.log('componentDidUpdate', prevProps, prevState);
+    if(snapshot) {
+      console.log('업데이트 전', snapshot);
+    }
+  }
+
+  render() {
+    console.log('render');
+
+    const style = {
+      color: this.props.color
+    };
+    
+    return (
+      <div>
+        <h1 style={style} ref={ref => this.myRef=ref}>
+          {this.state.number}
+        </h1>
+        <p>color: {this.state.color}</p>
+        <button onClick={this.handleClick}>
+          더하기
+        </button>
+      </div>
+    );
+  }
+}
+
+export default LifeCycleSample;
+```
+
+```react
+import LifeCycleSample from "./LifeCycleSample.js";
+import './App.css';
+import React, { Component } from 'react';
+
+function getRandomColor() {
+  return '#' + Math.floor(Math.random() * 16777215).toString(16);
+}
+
+class App extends Component {
+  state = {
+    color: "#000000"
+  }
+
+  handleClick = () => {
+    this.setState({
+      color: getRandomColor()
+    });
+  }
+  render() {
+    return (
+      <>
+        <div className="pad30">
+          <button onClick={this.handleClick}>
+            랜덤 색상
+          </button>
+          <LifeCycleSample color={this.state.color}/>
+        </div>
+      </>
+    );
+  }
+}
+
+export default App;
+
+```
+
+
+
+💡React.StrictMode
+
+이게 적용되어 있으면 일부 라이프 사이클이 두 번씩 호출된다
+
+개발 환경에서만 두 번씩 호출되고 프로덕션 환경에서는 정상 호출!
+
+index.js의 React.StrictMode를 제거하면 1번만 나올 것
+
+
+
+에러를 한 번 만들어보겠다
+
+LifeCycleSample.js의 render()에서 리턴하는 코드에
+
+`{this.props.missing.value}`라는 존재하지 않는 prop를 넣으면 에러가 난다
+
+그러면 그냥 흰 페이지만 보이는데
+
+이게 에러가 난 거라는 것을 사용자에게 알려주는 컴포넌트를 만들어본다
+
+```react
+import React, { Component } from 'react';
+
+class ErrorBoundary extends Component {
+  state = {
+    error: false
+  };
+  componentDidCatch(error, info) {
+    this.setState({
+      error: true
+    });
+    console.log({error, info});
+  }
+  render() {
+    if (this.state.error) return <div>에러 발생!</div>;
+    return this.props.children;
+  }
+}
+
+export default ErrorBoundary;
+```
+
+```react
+<ErrorBoundary>
+  <LifeCycleSample color={this.state.color}/>
+</ErrorBoundary>
+```
+
+App.js에서 이렇게 에러 바운더리 컴포넌트로 에러를 캐치할 컴포넌트를 감싼다
+
+
 
 ## Hooks
 
