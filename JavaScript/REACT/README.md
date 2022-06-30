@@ -2464,7 +2464,417 @@ App.js에서 이렇게 에러 바운더리 컴포넌트로 에러를 캐치할 �
 
 ## Hooks
 
+### useState
+
+기본적인 Hook
+
+함수 컴포넌트에서도 가변적인 상태를 지니게 한다
+
+```react
+import React, {useState} from 'react';
+
+const UseState = () => {
+  const [value, setValue] = useState(0);
+  return (
+    <div>
+      <p>
+        카운터는 <b>{value}</b>
+      </p>
+      <button onClick={() => setValue(value + 1)}> + 1</button>
+      <button onClick={() => setValue(value - 1)}> - 1</button>
+    </div>
+  );
+};
+
+export default UseState;
+```
+
+useState()는 배열을 반환한다
+
+배열의 첫 번째 원소는 상태 값, 두 번째 원소는 상태를 설정하는 함수.
+
+이 함수에 파라미터를 넣어서 호출하면 전달받은 파라미터로 값이 바뀌고 컴포넌트 리렌더링
+
+
+
+하나의 useState는 하나의 상태 값만 관리하므로
+
+컴포넌트에서 관리해야 할 상태가 여러 개라면 useState를 여러 개 사용해야 한다
+
+```react
+const [name, SetName] = useState('');
+const [nickname, SetNickname] = useState('');
+const [value, setValue] = useState(0);
+
+const onChangeName = e => {
+  SetName(e.target.value);
+}
+
+const onChangeNickname = e => {
+  SetNickname(e.target.value);
+}
+
+return (
+  <div>
+    <input value={name} onChange={onChangeName} />
+    <input value={nickname} onChange={onChangeNickname} />
+    <p>이름: {name}</p>
+    <p>닉네임: {nickname}</p>
+    <p>
+      카운터는 <b>{value}</b>
+    </p>
+    ...
+```
+
+
+
+### useEffect
+
+리액트 컴포넌트가 렌더링될 때마다 특정 작업을 수행하도록 설정할 수 있는 Hook
+
+클래스형 컴포넌트의 componentDidMount와 componentDidUpdate를 합친 형태
+
+```react
+import React, {useState, useEffect} from 'react';
+
+const UseState = () => {
+  const [name, SetName] = useState('');
+  const [nickname, SetNickname] = useState('');
+  const [value, setValue] = useState(0);
+
+  useEffect(() => {
+    console.log('rendering complete');
+    console.log({
+      name, nickname
+    })
+  })
+  ...
+```
+
+- 마운트될 때만 실행하고 싶다면?
+
+  업데이트 때는 실행하지 않고 싶다면 함수의 두 번째 파라미터로 빈 배열을 넣어 주면 된다
+
+  ```react
+  useEffect(() => {
+    console.log('mount complete');
+  }, []);
+  ```
+
+- 특정 값 업데이트될 때만 실행하고 싶다면?
+
+  이게 클래스형 컴포넌트라면
+
+  ```react
+  componentDidUpdate(prevProps, prevState) {
+    if (prevProps.vlaue !== this.props.value) {
+      doSomething();
+    }
+  }
+  ```
+
+  useEffect 사용: 두 번째 파라미터로 전달되는 배열 안에 검사하고 싶은 값을 넣는다
+
+  ```react
+  useEffect(() => {
+    console.log(name);
+  }, [name]);
+  
+  ```
+
+useEffect는 기본적으로 렌더링 직후마다 실행되며
+
+두 번째 파라미터 배열에 무엇을 넣는지에 따라 실행 조건이 달라진다
+
+컴포넌트가 언마운트되기 전이나 업데이트되기 직전에 작업을 수행하고 싶다면
+
+useEffect에서 뒷정리(cleanup) 함수를 반환해야 한다
+
+```react
+useEffect(() => {
+  console.log('effect');
+  console.log(name);
+  return () => {
+    console.log('cleanup');
+    console.log(name);
+  };
+}, [name]);
+```
+
+- 언마운트될 때만 뒷정리 함수 호출?
+
+  ```react
+  useEffect(() => {
+    console.log('effect');
+    return () => {
+      console.log('cleanup');
+    };
+  }, []);
+  ```
+
+  
+
+- App 컴포넌트에서 자식 컴포넌트의 가시성 바꾸기
+
+  ```react
+  import React, {useState} from 'react';
+  import UseState from "./UseState.js";
+  import './App.css';
+  
+  function App() {
+    const [visible, setVisible] = useState(false);
+    return (
+      <>
+        <div className="pad30">
+          <button onClick={() => {
+            setVisible(!visible);
+          }}>
+            {visible ? 'hide' : 'show'}
+          </button>
+          <hr />
+        {visible && <UseState />}
+        </div>
+      </>
+    );
+  }
+  
+  export default App;
+  
+  ```
+
+  
+
+### useReducer
+
+useState보다 다양한 컴포넌트 상황에서 다양한 상태를 다른 값으로 업데이트하고 싶을 때.
+
+리듀서라는 개념은 리덕스를 배울 때...
+
+리듀서: 현재 상태, 그리고 업데이트를 위해 필요한 정보를 담은 액션 값을 전달받아 새로운 상태를 반환하는 함수. 새로운 상태를 만들 때는 반드시 불변성 유지!
+
+액션 값은  `{type: 'INCREMENT'}`같은 형식으로 다른 값은 추가로 들어갈 수 있다
+
+리덕스의 액션 객체에서는 type 필드가 필수지만 
+
+useReducer에서는 꼭 필요한 건 아니다 또한 객체가 아니라 문자열/숫자도 가능
+
+```react
+import React, {useReducer} from 'react';
+
+function reducer(state, action) {
+  switch (action.type) {
+    case 'INCREMENT':
+      return {value: state.value + 1};
+    case 'DECREMENT':
+      return {value: state.value - 1};
+    default:
+      return state;
+  }
+}
+const UseReducer = () => {
+  const [state, dispatch] = useReducer(reducer, {value: 0});
+  return (
+    <div>
+      <p>counter: {state.value}</p>
+      <button onClick={() => dispatch({type: 'INCREMENT'})}> + 1</button>
+      <button onClick={() => dispatch({type: 'DECREMENT'})}> + 1</button>
+    </div>
+  );
+};
+
+export default UseReducer;
+```
+
+useReducer의 첫 번째 파라미터에는 리듀서 함수를 넣고, 두 번째 파라미터에는 해당 리듀서의 기본값을 넣어줍니다
+
+이 훅을 사용하면 state값과 dispatch함수를 받게 된다
+
+state는 현재 가리키고 있는 상태, 
+
+dispatch는 액션을 발생시키는 함수다
+
+`dispatch(action)`과 같은 형태로 함수 안에 파라미터로 액션 값을 넣어부면 리듀서 함수가 호출된다
+
+- 여러개라면?
+
+  ```react
+  import React, {useReducer} from 'react';
+  
+  function reducer(state, action) {
+    return {
+      ...state,
+      [action.name]: action.value
+    }
+  }
+  const UseReducer = () => {
+    const [state, dispatch] = useReducer(reducer, {
+      name: '',
+      nickname: ''
+    });
+    const {name, nickname} = state;
+    const onChange = e => {
+      dispatch(e.target);
+    }
+    return (
+      <div>
+        <input name="name" value={name} onChange={onChange} />
+        <input name="nickname" value={nickname} onChange={onChange} />
+        <p>name: {name}</p>
+        <p>nickname: {nickname}</p>
+      </div>
+    );
+  };
+  
+  export default UseReducer;
+  ```
+
+  useReducer에서의 액션은 어떤 값이든 가능해서
+
+  이벤트 객체의 e.target값을 액션 값으로 사용 가능
+
+  
+
+### useMemo
+
+함수 컴포넌트 내부에서 발생하는 연산 최적화 가능
+
+📌 추후!!!
+
+### useCallback
+
+### useRef
+
+함수 컴포넌트에서  ref 사용 가능
+
+- insert 버튼 클릭시 인풋으로 포커스 옮기기
+
+  ```react
+  import React, {useState, useCallback, useRef} from 'react';
+  
+  const UseRef = () => {
+    const [list, setList] = useState([]);
+    const [number, setNumber] = useState('');
+    const inputEl = useRef(null);
+  
+    const onChange = useCallback(e => {
+      setNumber(e.target.value);
+    }, []);
+    const onInsert = useCallback(() => {
+      const nextList = list.concat(parseInt(number));
+      setList(nextList);
+      setNumber('');
+      inputEl.current.focus();
+    }, [number, list]);
+  
+    return (
+      <div>
+        <input value={number} onChange={onChange} ref={inputEl} />
+        <button onClick={onInsert}>insert</button>
+        <ul>
+          {list.map((value, index) => (
+            <li key={index}>{value}</li>
+          ))}
+        </ul>
+      </div>
+    );
+  };
+  
+  export default UseRef;
+  ```
+
+  useRef를 사용하여 ref를 설정하면 useRef를 통해 만든 객체 안의 current 값이 실제 엘리먼트를 가리킨다
+
+- 로컬 변수 사용하기
+
+  로컬 변수: 렌더링과 상관없이 바꿀 수 있는 값
+
+  클래스 컴포넌트라면
+
+  ```react
+  import React, { Component } from 'react';
+  
+  class MyComonent extends Component {
+    id = 1
+  	setId = (n) => {
+      this.id = n;
+    }
+    printId = () => {
+      console.log(this.id);
+    }
+    render() {
+      return (
+      	<div>
+        	MyComponent
+        </div>
+      )
+    }
+  }
+  ```
+
+  useRef 사용
+
+  ```react
+  import React, {useState, useCallback, useRef} from 'react';
+  
+  const UseRef = () => {
+    const [list, setList] = useState([]);
+    const [number, setNumber] = useState('');
+    const inputEl = useRef(null);
+    const id = useRef(1);
+  
+    const onChange = useCallback(e => {
+      setNumber(e.target.value);
+    }, []);
+    const onInsert = useCallback(() => {
+      const nextList = list.concat(parseInt(number));
+      setList(nextList);
+      setNumber('');
+      inputEl.current.focus();
+    }, [number, list]);
+    const setId = () => {
+      id.current += 1;
+    }
+    const printId = () => {
+      console.log(id.current);
+    }
+  
+    return (
+      <div>
+        <input value={number} onChange={onChange} ref={inputEl} />
+        <button onClick={onInsert}>insert</button>
+        <ul>
+          {list.map((value, index) => (
+            <li key={index}>{value}</li>
+          ))}
+        </ul>
+        <button onClick={setId}>+1</button>
+        <button onClick={printId}>console</button>
+      </div>
+    );
+  };
+  
+  export default UseRef;
+  ```
+
+  ref 안의 값이 바뀌어도 컴포넌트가 렌더링되지는 않는다
+
+  
+
+### 커스텀 Hooks
+
+📌 추후 
+
+### 다른 Hooks
+
 ## 컴포넌트 스타일링
+
+### CSS
+
+### SASS
+
+### CSS module
+
+### styled-components
 
 ## 일정 관리 웹 애플리케이션
 
@@ -2473,6 +2883,22 @@ App.js에서 이렇게 에러 바운더리 컴포넌트로 에러를 캐치할 �
 ## immer를 사용한 불변성 유지
 
 ## 리액트 라우터로 SPA 개발하기
+
+### 라우팅
+
+라우팅은 사용자가 요청한 URL에 따라 알맞은 페이지를 보여주는 것
+
+### SPA
+
+### 리액트 라우터
+
+### URL 파라미터와 쿼리스트링
+
+### 라우트 중첩
+
+### 부가 기능
+
+
 
 ## 외부 API 연동해서 뉴스 뷰어 만들기
 
