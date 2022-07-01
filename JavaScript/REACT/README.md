@@ -2882,6 +2882,59 @@ dispatch는 액션을 발생시키는 함수다
 
 ## immer를 사용한 불변성 유지
 
+immer라는 라이브러리를 사용하면 구조가 복잡한 객체도 간단한 코드로 불변성을 유지하면서 업데이트할 수 있다
+
+### immer 설치
+
+`yarn add immer`
+
+```react
+import produce from 'immer';
+const nextState = produce(originalState, draft => {
+  draft.somewhere.deep.inside = 5;
+})
+```
+
+produce는 두 가지 파라미터를 받는다
+
+첫 번째 파라미터는 수정하고 싶은 상태,
+
+두 번째 파라미터는 상태를 업데이트할 함수다
+
+두번째 파라미터의 함수 원하는 값을 변경하면 produce 함수가 불변성 유지를 대신해주면서 새로운 상태를 생성한다
+
+```react
+import produce from 'immer';
+
+const originalState = [
+  {
+    id: 1,
+    todo: 'aaa',
+    checked: true
+  },
+  {
+    id: 2,
+    todo: 'bbb',
+    checked: false
+  },
+];
+
+const nextState = produce(originalState, draft => {
+  const todo = draft.find(t => t.id === 2);
+  todo.checked = true;
+  
+  draft.push({
+    id: 3,
+    todo: 'immer',
+    checked: false
+  });
+  
+  draft.splice(draft.findIndex(t => t.id === 1), 1);
+});
+```
+
+
+
 ## 리액트 라우터로 SPA 개발하기
 
 ### 라우팅
