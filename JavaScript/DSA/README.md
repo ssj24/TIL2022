@@ -58,7 +58,7 @@
                 text-decoration: none;
                 color: black;
                 font-weight: 900;
-                "  href="https://ssj24.github.io/TIL2022/JavaScript/DSA/Hasing" >
+                "  href="https://ssj24.github.io/TIL2022/JavaScript/DSA/Hashing" >
         👉Hashing
       </a>
       <a style="display: block;
