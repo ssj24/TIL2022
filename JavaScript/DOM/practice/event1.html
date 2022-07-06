@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    .wrapper {
+      width: 400px;
+      position: relative;
+    }
+    .image {
+      width: 400px;
+    }
+    p {
+      width: 400px;
+      text-align: center;
+      text-transform:uppercase;
+      position: absolute;
+      top: 35%;
+      background-color: seagreen;
+      font-size: 45px;
+      color: white;
+    }
+    .none {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>click the image</h1>
+  <div class="wrapper">
+    <img id="seaImg" class="image" src="https://images.unsplash.com/photo-1505118380757-91f5f5632de0?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1852&q=80" alt="sea">
+    <p id="text" class="none"></p>
+  </div>
+  <script>
+    const wrapper = document.querySelector('.wrapper');
+    const image = document.getElementById('seaImg');
+    const text = document.getElementById('text');
+    
+    image.addEventListener('click', () => {
+      text.classList.toggle('none');
+    });
+    
+    wrapper.addEventListener('mouseenter', () => {
+      text.innerText="Get Out!!";
+    });
+    wrapper.addEventListener('mouseout', () => {
+      text.innerText="Now you can see me";
+    });
+  </script>
+</body>
+</html>

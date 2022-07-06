@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    .wrapper {
+      width: 500px;
+      height: 350px;
+      margin: 10px auto;
+      position: relative;
+    }
+    .image {
+      width: 100%;
+      height: 100%;
+    }
+    .overImage {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      /* z-index: 2; */
+    }
+    p {
+      width: 100%;
+      font-size: 15px;
+    }
+    .secondWrapper {
+      position: relative;
+      overflow: hidden;
+    }
+    .dot {
+      background: black;
+      width: 0.5em;
+      height: 0.5em;
+      border-radius: 2px;
+      position: absolute;
+      top: 20px;
+      left: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>mouse over the image</h1>
+  <button id="clearBtn">Clear</button>
+  <div class="wrapper">
+    <img id="boardImg" class="image" src="https://images.unsplash.com/photo-1578662996442-48f60103fc96?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80" alt="blackboard">
+    <canvas id="canvas" class="overImage"></canvas>
+  </div>
+  <p id="text"></p>
+  <div class="secondWrapper">
+    <img id="blankImg" class="image" src="https://images.unsplash.com/photo-1472289065668-ce650ac443d2?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1738&q=80" alt="blank">
+    <!-- <div class="dot"></div> -->
+  </div>
+  <script>
+    const wrapper = document.querySelector('.wrapper');
+    const canvas = document.querySelector('.overImage');
+    const image = document.getElementById('boardImg');
+    const text = document.getElementById('text');
+    const clearBtn = document.getElementById('clearBtn');
+    const context = canvas.getContext('2d');
+    let isDrawing = false;
+    let {x, y} = [0, 0];
+    let lineColor = 'white';
+
+    function drawLine(context, x1, y1, x2, y2) {
+      context.beginPath();
+      context.strokeStyle = lineColor;
+      context.lineWidth = 1;
+      context.moveTo(x1, y1);
+      context.lineTo(x2, y2);
+      context.stroke();
+      context.closePath();
+    }
+
+    canvas.addEventListener('mousedown', e => {
+      x = e.offsetX;
+      y = e.offsetY;
+      isDrawing = true;
+      console.log(e.offsetX, e.pageX, e.clientX)
+    })
+    canvas.addEventListener('mousemove', e => {
+      text.innerText += `don't move, plz..`;
+      if (isDrawing) {
+        drawLine(context, x, y, e.offsetX, e.offsetY);
+        
+        x = e.offsetX;
+        y = e.offsetY;
+      }
+    });
+    canvas.addEventListener('mouseup', e => {
+      text.innerText = '';
+      if (isDrawing) {
+        drawLine(context, x, y, e.offsetX, e.offsetY);
+        x = 0;
+        y = 0;
+        isDrawing = false;
+      }
+    });
+    canvas.addEventListener('mouseleave', () => {
+      text.innerText = '';
+    })
+    clearBtn.addEventListener('click', () => {
+      context.clearRect(0, 0, canvas.width, canvas.height);
+    })
+
+    const secondWrapper = document.querySelector('.secondWrapper');
+    const onMouseMove = (e) => {
+      const dotDiv = document.createElement('div');
+      dotDiv.className = 'dot';
+      dotDiv.style.top = `${e.clientY - 300}px`;
+      dotDiv.style.left = `${e.clientX}px`;
+      secondWrapper.appendChild(dotDiv);
+    }
+    secondWrapper.addEventListener('mousemove', onMouseMove);
+  </script>
+</body>
+</html>

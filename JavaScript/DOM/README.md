@@ -1206,6 +1206,14 @@ why do we need callbacks?
 
 ## Event Challenges
 
+1. when the image is clicked, dynamically display text beneath it.
+
+2. as mouse moves over the image, you can draw on the image and text is added below
+
+   clientY gives us the vertical distance (in pixels) from the top left of the content area(the viewpoint). it start at 0px 0px in the upper left corner and is as wide/tall as your browser window is open(minus scroll bars, frame, title bar, etc).
+
+3. move the mustache with mouse
+
 ## Object and node hierarchy
 
 ## Capturing and Bubbling

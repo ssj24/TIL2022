@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    #mustache {
+      position: absolute;
+    }
+  </style>
+</head>
+<body>
+  <img id ='person' src="./personFace.jpg" alt="person">
+  <img id ='mustache' src="./mustache.png" alt="mustache">
+  <script>
+    const personImg = document.getElementById('person');
+    const mustacheImg = document.getElementById('mustache');
+    let isClicked = false;
+    mustacheImg.addEventListener('mousedown', () => {
+      isClicked = true;
+    })
+    mustacheImg.addEventListener('mousemove', (e) => {
+      if (isClicked) {
+        mustacheImg.style.top = `${e.clientY - 87}px`;
+        mustacheImg.style.left = `${e.clientX - 160}px`;
+      }
+    })
+    mustacheImg.addEventListener('mouseup', () => {
+      isClicked = false;
+    })
+  </script>
+</body>
+</html>
