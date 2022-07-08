@@ -1216,6 +1216,8 @@ why do we need callbacks?
 
 ## Object and node hierarchy
 
+
+
 ## Capturing and Bubbling
 
 ## Event Delegation and Challenges
