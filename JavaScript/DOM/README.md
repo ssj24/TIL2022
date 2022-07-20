@@ -1204,6 +1204,68 @@ why do we need callbacks?
 
 ## Different types of events
 
+programming languages have slightly different kind of event model.
+
+node.js is a JS that enables developers to write JS in the backend.
+
+(it's method on() is similar to the addEventListener())
+
+
+
+### common events
+
+each event is unique and is an object with its own properties and methods
+
+All events inherit from the Event object
+
+1. mouse: click, dbclick, mousedown...
+2. keyboard: keydown, keypress, keyCode...
+3. form: focus, submit, blur, change...
+4. touch: touchstart, touchmove(touchable divice only. tablet PC, smart phone...)
+5. window: scroll, resize, load, hashchange..
+
+
+
+```javascript
+document.addEventListener('keydown', (e) => {
+  console.log(e.key);
+})
+```
+
+
+
+document.forms returns HTMLCollection of forms
+
+```javascript
+let output = document.getElementById('output');
+form.addEventListener('submit', (e) => {
+  e.preventDefault();
+  output.textContent = `Fired at ${e.timeStamp}`;
+})
+```
+
+`preventDefault()`: if you hadn't specify the url of `form`, the page will be refreshed when the submit button is clicked. to prevent such thing, add `preventDefault` to submit event handler.
+
+- form-submit event
+  1. button is clicked
+  2. input with type submit is clicked
+
+
+
+### input event
+
+```javascript
+let nameText = document.querySelector('input[type="text"]');
+nameText.value; // what's inserted into the input
+```
+
+- input: something has inserted
+- focus: when input is focused
+- copy: when things in input is copied.
+- paste
+
+
+
 ## Event Challenges
 
 1. when the image is clicked, dynamically display text beneath it.
@@ -1216,7 +1278,243 @@ why do we need callbacks?
 
 ## Object and node hierarchy
 
+```javascript
+// JS object
+let dog = 'woof';
+dog.__proto__; // String{...}
 
+// DOM object
+let p = document.createElement('p');
+p.__proto__; // HTMLParagraph Element{...}
+```
+
+
+
+### Native VS Host Objects
+
+every node in the DOM inherits methods / properties from its parent node
+
+ = every object in the JS inherits methods / properties from its parent object
+
+
+
+pretty much everything in the JS is object, 
+
+pretty much everything in the DOM is node
+
+every object / node contains a private property which holds a link to its prototype.
+
+
+
+a node is a generic term for any type of object in the DOM
+
+in the JS an object is a complex data type.
+
+there are two object types
+
+1. Native
+
+   predefined objects(=> always abailable)
+
+   set out in the ECMAScript specification(Object, Function, String...)
+
+   a native object means you have access to JavaScript objects automatically.
+
+2. Host
+
+   provides by a specific environment in order to serve a specific purpose
+
+   not defined by ECMAScript
+
+   Not all environments have the same host objects
+
+   
+
+window object(root object. given to us by the browser) is host object.
+
+window object enables DOM(host), BOM(host), and JS(native) access
+
+DOM is governed by the W3C. 
+document, event, console, node...
+
+BOM is all about the view and other stuff not the content of the page. BOM is not governed!
+screen, history, navigator, frames...
+
+JS: Object, Number, Date, String...
+
+
+
+### Inheritance
+
+the full set of properties and methods of a node comes as the result of inheritance
+
+some nodes have a value from its parent.
+
+
+
+To create, remove, modify elements, we have to access the document
+
+like `document.createElement('p');`
+
+then.. where does this method come from??
+
+`console.dir(document);`
+
+createElement is in the Document(document => HTMLDocument => Document)
+
+document object inherits createElement method from `Document` object.
+
+`document.__proto__.__proto__;`
+
+
+
+
+
+```javascript
+let p = document.createElement('p');
+let obj = {}; // == obj = new Object();
+```
+
+p is DOM Object
+
+obj is JS Object
+
+- object hierarchy
+
+  prototype of **DOM Object p** is HTMLParagraphElement.
+
+  prototype of HTMLParagraphElement is HTMLElement.
+
+  prototype of HTMLElement is Element.
+
+  prototype of Element is Node.
+
+  prototype of Node is EventTarget.
+
+  prototype of EventTarget is **Object**.(which is JS Object)
+
+  Nearly all objects in JS are descendants of the `Object`
+
+  A typical object inherits properties / methods from Object.prototype.
+
+  +) Object that the p inherits from is kinda limited JS object. it only inherits a few methods and properties from the Object prototype.
+
+  - EventTarget is the **root** object
+
+    it serves a s a base for all other nodes
+
+    it allows all nodes to utilise events
+
+    it gives us access to the addEventListener()]
+
+    a lot of othet objects inherit from the EventTarget.
+
+    (XMLHttpRequest, audioContext, audioNode...)
+
+  - Node
+
+    the Node object allows us to traverse the DOM
+
+    it gives us `getters`: parentNode, childNodes, nextSibling...
+
+    many nodes inherit from it
+
+  - Element
+
+    Element object helps us to traverse only element items
+
+    it gives us access to nextElementSibling, children, querySelector..
+
+    it serrves as a base for the HTMLElement
+
+  - HTMLElement
+
+    This interface is available to any HTML element
+
+    specifies operations and queries that can be made on any HTML element.
+
+  - HTMLParagraphElement
+
+    HTMLElement's more specific concrete version.(it's Paragraph in this case)
+
+    paragraph element
+
+    each tag has its own unique object it inherits from(if it was the anchor tag, it would've been HTMLAnchorElement)
+
+    each object provides specific properties and methods
+
+
+
+- DOM extension
+
+  DOM extension is the process of adding custom methods/properties to DOM objects
+
+  DOM objects are host objects that inherit from the Element, Event, Document or other DOM interfaces
+
+  you can add methods/properties either to the DOM objects directly or to the prototype of it.
+
+  the most popular extended objects are DOM elements like p or div tags.(elements that inherit from the Element interface)
+
+  there are popular libraries and packages: Prototype, Mootools
+
+  - add our own custom method on `Element` host object
+
+    **Do not add a mehtod like `Element.red`. You should use it like `Element.prototype.red`. If you write like Element.red, red won't attach to the Element's constructor.**
+
+    ```javascript
+    Element.prototype.red = function() {
+      this.style.color = 'red';
+    }
+    let p = document.createElement('p');
+    document.write('hi');
+    p.textContent = 'This is a new paragraph element';
+    document.body.appendChild(p);
+    p.red();
+    ```
+
+    ![](./practice/domExtension.png)
+
+    first assign the red function to the Element prototype.
+
+    then, create paragraph element, and then invoke the red function directly on it.
+
+    we could make it like `HTMLParagraphElement.prototype.red`. then red function is only available within paragraph element.
+
+    just like that, creating a property on Element.prototype will not make it available on all nodes but only those of type Element.
+
+  - but, it's not a good practice.
+
+    1. Right Prototype
+
+       you need to choose right prototype carefully. weather it's Element or Paragraph...
+
+    2. No Rules
+
+       since DOM objects are host objects, exposure of these DOM objects prototype is not guaranteed. DOM specification doesn't make it mandatory. host objects are difficult to work with. 
+
+       `document.createElement('p').offsetParent` will return an error in IE. Because the DOM spec allows different browsers to implement host objects in different ways.
+
+    3. Collisions
+
+       is the property you're trying to add already part of the DOM?
+
+       can you overwrite it?
+
+       does it have knock-on effects?
+
+       HTML5 brings new methods and properties all the time
+
+    > attach to each object like `p.red` is also not the best idea. Every time you want to use the red property, you'll first need to extend the object. 
+    >
+    > another problem is when it comes to events. some events can fire dozens of times per second, so extending each p element you create is a very slow and inefficient process.
+
+  - alternative?
+
+    object wrappers: what jQuery has done
+
+    (Object.create() then refer to a custom prototype we've created)
+
+    this just means that you can create a new object that references the original, but provides additional functionality through the new, wrapper object.
 
 ## Capturing and Bubbling
 
@@ -1227,4 +1525,9 @@ why do we need callbacks?
 ## Tips
 
 1. console - sources - New Snippet
-2. 
+
+2. offsetParent
+
+   `MyElement.offsetParent`
+
+   the offsetParent is a DOM method that returns a reference to the element which is the closest(nearest in the hierarchy) positioned ancestor element.

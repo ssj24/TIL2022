@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <script>
+    Element.prototype.red = function() {
+      this.style.color = 'red';
+    }
+    let p = document.createElement('p');
+    document.write('hi');
+    p.textContent = 'This is a new paragraph element';
+    document.body.appendChild(p);
+    p.red();
+  </script>
+</body>
+</html>
