@@ -1518,6 +1518,168 @@ obj is JS Object
 
 ## Capturing and Bubbling
 
+### Event Bubbling
+
+event bubbling: the flow of each event through the DOM
+
+
+
+How events get fired?
+
+an event is not an isolated disturbance.
+
+```
+#one
+	#two
+		#three-a
+			button#button1
+    #three-b
+    	button#button2
+    	
+window
+document
+html
+body
+#one
+#two
+#three-a
+#button1
+```
+
+when #button1 is clicked,
+
+a click event will be fired.
+
+where that click event will be fired?
+
+it does not originate at #button1.
+
+**All events originate at ROOT(window object)**
+
+click event starts from window object
+
+`#button` is a target
+
+our event notifies every element till reaches target
+
+when it reaches target element,
+
+the event then returns **back to the root**
+
+
+
+by those coming from and returning to root object,
+
+any event handlers will get called.
+
+the steps event take from root to target is called `event capturing phase`
+
+and the steps event take from target to root(returning back to root)
+
+is called `event bubbling phase`
+
+
+
+every element has the benefit of being notified twice when an event is fired
+
+
+
+event capturing and bubbling are related to the **order** 
+
+in which event handlers are called
+
+when one element is nested inside a second element,
+
+and both elements have registered a listener for the same event.
+
+
+
+events are actions or occurences that happen in your browser.
+
+
+
+which phase do we listen to an event on?
+
+`element.addEventListener('click', clickHandler, true)`
+
+addEventListener gets three argument.
+
+if the third argument is true,
+
+it listens to the capturing phase.
+
+default value is false(bubbling)
+
+
+
+`for ... of` is a loop iterating over objects
+
+querySelectorAll() returns a static NodeList
+
+it will return a collection of document's elements
+
+that match the specified group of selectors.
+
+
+
+mostly capturing or bubbling doesn't matter
+
+but sometimes you'll need to distinguish.
+
+- nested menus
+- third party library
+- overrides(built in browser methods..)
+
+
+
+### stopPropagation
+
+sometimes we want to kill our event.
+
+stop it from reaching the root
+
+stoppropagation prevents our event from running through our DOM
+
+
+
+event capturing and bubbling are two ways of event propagation in the DOM API.
+
+`#one - #two - #three-a - #button1`
+
+both #button1 and #three-a have click event handler.
+
+(`#button1`, click, handler1
+
+`#button2`, click, handler2 with e.stopPropagation())
+
+if we click button1, handler1 couldn't be executed
+
+(whether in capturing phase or bubbling phase)
+
+only the handler2 is executed once, <u>then all stops.</u>
+
+
+
+stopPropagation() method stops the move of the event upwards or downwards
+
+it will still execute all handlers on the current element
+
+if you want to stop the execution of handlers on the current element,
+
+use `event.stopimmediatePropagation()`
+
+
+
+not all events will bubble up through the DOM
+
+for instance, a focus event does not bubble.
+
+there are other events that also don't bubble.
+
+events fired on the window object(load and resize events)
+
+or other non-DOM objects like XHRs
+
 ## Event Delegation and Challenges
 
 ## Website Project - A Shopping List
@@ -1531,3 +1693,5 @@ obj is JS Object
    `MyElement.offsetParent`
 
    the offsetParent is a DOM method that returns a reference to the element which is the closest(nearest in the hierarchy) positioned ancestor element.
+   
+3. document.querySelectorAll('*');
