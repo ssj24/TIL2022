@@ -8,6 +8,8 @@ function CArray(numElements) {
   this.setData = setData;
   this.swap = swap;
   this.bubbleSort = bubbleSort;
+  this.selectionSort = selectionSort;
+  this.insertionSort = insertionSort;
 
   for (let i=0; i<numElements; ++i) {
     this.dataStore[i] = i;
@@ -57,13 +59,58 @@ function bubbleSort() {
         swap(this.dataStore, inner, inner+1);
       }
     }
-    console.log(this.toString());
+    // console.log(this.toString());
   }
 }
 
-let numElements = 10;
-let myNums = new CArray(numElements);
-myNums.setData();
-console.log(myNums.toString());
-myNums.bubbleSort();
-console.log(myNums.toString());
+function selectionSort() {
+  var min, temp;
+  for (var outer = 0; outer <= this.dataStore.length-2; ++outer) {
+    min = outer;
+    for (var inner = outer + 1;
+      inner <= this.dataStore.length-1; ++inner) {
+      if (this.dataStore[inner] < this.dataStore[min]) {
+        min = inner;
+      }
+    }
+    swap(this.dataStore, outer, min);
+    // console.log(this.toString());
+  }
+}
+
+function insertionSort() {
+  var temp, inner;
+  for (var outer = 1; outer <= this.dataStore.length-1; ++outer) {
+    temp = this.dataStore[outer];
+    inner = outer;
+    while (inner > 0 && (this.dataStore[inner-1] >= temp)) {
+      this.dataStore[inner] = this.dataStore[inner-1];
+      --inner;
+    }
+    this.dataStore[inner] = temp;
+    // console.log(this.toString());
+  }
+}
+
+let numElements = 100;
+let myNums1 = new CArray(numElements);
+let myNums2 = new CArray(numElements);
+let myNums3 = new CArray(numElements);
+myNums1.setData();
+myNums2.setData();
+myNums3.setData();
+let start = new Date().getTime();
+myNums1.bubbleSort();
+let stop = new Date().getTime();
+let elapsed = stop - start;
+console.log("bubbleSort: ", elapsed);
+start = new Date().getTime();
+myNums2.selectionSort();
+stop = new Date().getTime();
+elapsed = stop - start;
+console.log("selectionSort: ", elapsed);
+start = new Date().getTime();
+myNums3.insertionSort();
+stop = new Date().getTime();
+elapsed = stop - start;
+console.log("insertionSort: ", elapsed);
