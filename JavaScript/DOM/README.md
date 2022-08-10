@@ -1682,7 +1682,214 @@ or other non-DOM objects like XHRs
 
 ## Event Delegation and Challenges
 
+### Box Challenges
+
+there are nine gray boxes,
+
+if you click one of the box, background color of that box is changed.
+
+if you click another box, the first one's background color get back to the gray
+
+and the one you clicked becomes red.
+
+```html
+<tr>
+	<th colspan="3"> all three of the td below will get equal space
+  </th>
+</tr>
+<tr>
+	<td></td>
+  <td></td>
+	<td></td>
+</tr>
+```
+
+```javascript
+let selectedElement = null;
+
+function changeColor(e) {
+  let target = e.target;
+  highlight(target);
+}
+
+function highlight(node) {
+  if (selectedElement != null) {
+    selectedElement.classList.remove('highlight');
+  }
+  selectedElement = node;
+  selectedElement.classList.add('highlight');
+}
+```
+
+but if you click the something else than td,
+
+no box has a color.
+
+so make the event triggered only when td is clicked.
+
+
+
+classList API(Application Programming Interface) returns a live DOMTokenList
+
+API is just a set of instructions which is given for the benefit of other developers.
+
+APIs give developers a common, standard method for writing code that builds upon each other.
+
+classList API gives us an easy way to grab all the classes of an element.
+
+this property is useful to add, remove and toggle CSS classes of en element.
+
+it was introduced by the HTML5 spec
+
+
+
+DOMTokenList
+
+it returns a special kind of a list that gives us all the methods(add(), remove(), contains(), toggle(), toString(), item(), value, length...)
+
+
+
+```javascript
+function changeColor(e) {
+  let target = e.target;
+  if (target.tagName != 'TD') {
+    return; 
+    // undefined will be returned if no value is specified
+  } else {
+    highlight(target);
+  }
+}
+```
+
+`element.tagName` is a read-only property.(given to us by the DOM)
+
+it returns the tag name of the element on which it is called
+
+**for HTML the returned value is in CAPITAL.**
+
+
+
+### quote challenge
+
+you could delete element by click x button
+
+```javascript
+function remove(e) {
+  let target = e.target;
+  if (target.className != 'remove') {
+    return;
+  } else {
+    target.parentElement.remove();
+  }
+}
+```
+
+
+
+### list challenge
+
+```html
+<ul>
+  <li> First
+  	<ul>
+      <li> Second
+      	<ul>
+          <li> Third </li>
+        </ul>
+      </li>
+      <li> Second
+      	<ul>
+          <li> Third </li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+```
+
+if you click First, menu below that First will collapse,
+
+click again that First? you can see them again.
+
+if you click Second, menu below that Second will collapse....
+
+```javascript
+let ul = the top ul element
+
+ul.addEventListener('click', showOrHide);
+
+function showOrHide(e) {
+  let target = e.target;
+  if (target.tagName == "LI") {
+    let ulShowOrHide = target.querySelector('ul');
+    if (ulShowOrHide) { // if there are submenu
+      ulShowOrHide.classList.toggle('hide');
+    }
+  }
+}
+```
+
+`.hide {display: none;}`
+
+
+
 ## Website Project - A Shopping List
+
+- insert/delete item (submit / click)
+- search item(key up)
+- hide list(checkbox change)
+
+
+
+### Removing Item
+
+```javascript
+// old way
+
+buttons.forEach((button) => {
+  button.addEventListener('click', (e) => {
+    const LI = e.target.parentElement;
+    LI.parentElement.removeChild(LI);
+  })
+})
+```
+
+```javascript
+// new way - event bubbling
+
+function remove(e) {
+  let target = e.target;
+  if (target.className == 'delete') {
+    let li = target.parentElement;
+    li.remove();
+  }
+}
+
+UL.addEventListener('click', remove);
+```
+
+
+
+### Forms
+
+```javascript
+// get second form of the doc
+document.forms[1];
+// get the form with id 'add-item'
+document.forms['add-item'];
+```
+
+
+
+when form gets **submit** event, page will be refreshed.
+
+to prevent browser's default behavior of the form, just use  `preventDefault()`.
+
+a lot of elements(links, input boxes, forms, checkbox...) has their own default behavior.
+
+if you use preventDefault on link element, it will not direct you to link.
+
+
 
 ## Tips
 
@@ -1695,3 +1902,39 @@ or other non-DOM objects like XHRs
    the offsetParent is a DOM method that returns a reference to the element which is the closest(nearest in the hierarchy) positioned ancestor element.
    
 3. document.querySelectorAll('*');
+
+4. border: 1px solid rgb(211, 211, 211, 0.877);
+
+   simple rgb can include alpha.
+
+5. width: 90%; max-width: 250px;
+
+   write both `width` and `max-width`
+
+6. nodeList.forEach((item) => {item.textContent = 'text'});
+
+7. ```
+   #add-item
+   	input
+   	button
+   ```
+
+   ```css
+   #add-item {
+     width: 400px;
+     margin: 0 auto;
+   }
+   #add-item input {
+     width: 300px;
+     display: block;
+     float: left;
+   }
+   ```
+
+   the button will attach to right side of the input
+
+8. is it mandatory thing to make a form when gets an input from user?
+
+9. `getElementsByTagName('div');` the lowercase is fine in this method.
+
+   BUT! `element.tagName` returns in all CAPITAL.
