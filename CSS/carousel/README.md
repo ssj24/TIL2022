@@ -1,6 +1,6 @@
 # Carousel
 
-## 기초
+## 기본1
 
 https://medium.com/@claudiaconceic/infinite-plain-javascript-slider-click-and-touch-events-540c8bd174f2
 
@@ -382,5 +382,173 @@ https://medium.com/@claudiaconceic/infinite-plain-javascript-slider-click-and-to
      - `allowShift` 를 true로 해서 사용자가 다시 인풋을 줄 수 있게 해 준다
 
      checkIndex가 transitionend 이벤트일 때 호출되는 이유는 두 슬라이드 사이의 transition이 끝난 후에 동작하게 만들기 위해서다
+
+
+
+## 기본2
+
+https://medium.com/@marcusmichaels/how-to-build-a-carousel-from-scratch-in-vanilla-js-9a096d3b98c9
+
+1. html
+
+   ```html
+   <div class="carousel-wrapper">
+     <div class="carousel">
+       <img src="./img1.png" alt="first" class="carousel__photo initial">
+       <img src="./img2.png" alt="second" class="carousel__photo">
+       <img src="./img3.png" alt="third" class="carousel__photo">
+       <img src="./img4.png" alt="forth" class="carousel__photo">
+       <img src="./img5.png" alt="fifth" class="carousel__photo">
+   
+       <div class="carousel__button--next"></div>
+       <div class="carousel__button--prev"></div>
+     </div>
+   </div>
+   ```
+
+   carousel-wrapper는 캐루젤의 크기를 정하고
+
+   이 영역을 벗어나는 것을 감춘다
+
+   carousel은 캐루젤 관련 아이템들을 가진다
+
+   맨 처음으로 보여질 이미지에  initial이라는 클래스를 줬다
+
+   > 네이밍 컨벤션 BEM methodology
+   >
+   > http://getbem.com/introduction/
+
+   
+
+2. css
+
+   모바일 화면부터 css를 짜는 것을 선호한다
+
+   ```css
+   .carousel-wrapper {
+     overflow: hidden;
+     width: 90%;
+   }
+   
+   .carousel-wrapper * {
+     box-sizing: border-box;
+   }
+   
+   .carousel {
+     transform-style: preserve-3d;
+   }
+   
+   .carousel__photo {
+     opacity: 0;
+     position: absolute;
+     top: 0;
+     width: 100%;
+     margin: auto;
+     padding: 1rem 4rem;
+     z-index: 100;
+     transition: transform .5s, opacity .5s, z-index .5s;
+   }
+   
+   .carousel__photo.initial,
+   .carousel__photo.active {
+     opacity: 1;
+     position: relative;
+     z-index: 900;
+   }
+   
+   .carousel__photo.prev,
+   .carousel__photo.next {
+     z-index: 800;
+   }
+   
+   .carousel__photo.prev {
+     transform: translateX(-100%);
+   }
+   
+   .carousel__photo.next {
+     transform: translateX(100%);
+   }
+   
+   .carousel__button--prev,
+   .carousel__button--next {
+     position: absolute;
+     top: 50%;
+     width: 3rem;
+     height: 3rem;
+     background-color: #fff;
+     transform: translateY(-50%);
+     border-radius: 50%;
+     cursor: pointer;
+     z-index: 1001;
+     border: 1px solid black;
+   }
+   
+   .carousel__button--prev {
+     left: 0;
+   }
+   
+   .carousel__button--next {
+     right: 0;
+   }
+   
+   .carousel__button--prev::after,
+   .carousel__button--next::after {
+     content: "";
+     position: absolute;
+     width: 10px;
+     height: 10px;
+     top: 50%;
+     left: 54%;
+     border-right: 2px solid black;
+     border-bottom: 2px solid black;
+     transform: translate(-50%, -50%) rotate(135deg);
+   }
+   
+   .carousel__button--next::after {
+     left: 47%;
+     transform: translate(-50%, -50%) rotate(-45deg);
+   }
+   ```
+
+   .carousel-wrapper는 %로 width를 줘서 전체 사이즈에 맞게 한다
+
+   .carousel__photo에서 모든 사진을 투명하게 하고 absolute로 포지셔닝한다
+
+   javascript가 늦게 로드될 때를 대비해서 initial을 css로도 설정해준다
+
+   
+
+3. js
+
+   1. 캐루젤 초기화 셋팅을 위해서 initial 아이템을 찾아 앞 뒤 아이템에 prev, next 클래스를 부여한다
+   2. 버튼에 클릭 이벤트를 넣는다(각각 함수 만들기)
+   3. 클릭한 방향에 따라 캐루젤을 이동시키는 함수를 만든다
+   4. 버튼을 여러번 클릭하는 걸 방지하기 위해 캐루젤이 움직이는 동안은 버튼을 누를 수 없게 만든다
+   5. 캐루젤이 이동한 뒤에는 다시 prev, next 아이템을 찾는다
+
+   
+
+   IIFE로 만들어 글로벌 스코프에서 접근할 수 없도록 만든다
+
+   ```javascript
+   !(function(d) {
+     // d is document
+   }(document));
+   ```
+
+   
+
+   ```javascript
+   function disableInteraction() {
+     moving = true;
+     setTimeout(function() {
+       moving = false
+     }, 500);
+   }
+   ```
+
+   트랜지션에  0.5s가 걸리게 설정했으므로 버튼 disable도 500ms만큼!
+
+   
 
 ## 웹 접근성
