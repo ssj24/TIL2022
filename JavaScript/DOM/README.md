@@ -1891,6 +1891,63 @@ if you use preventDefault on link element, it will not direct you to link.
 
 
 
+### Add Items
+
+```javascript
+formAdd.addEventListener('submit', (e) => {
+  e.preventDefault();
+  // grab user's input
+  let text = formAdd.querySelector('input[type="text"]').value;
+  // make a new list item
+  // li - span - text input
+  //    - span - delete button
+  let li = document.createElement('li');
+  let groceryName = document.createElement('span');
+  let deleteButton = document.createElement('span');
+  li.appendChild(groceryName);
+  li.appendChild(deleteButton);
+	// add the list item to the DOM
+  let ul = document.getElementsByTagName('ul')[0];
+  ul.appendChild(li);
+  // add text
+  groceryName.textContent = text;
+  deleteButton.textContent = 'delete';
+  groceryName.classList.add('name');
+  deleteButton.classList.add('delete');
+})
+```
+
+
+
+### Hide Items
+
+change events only available on input, select, text area
+
+for checkbox, a change event is fired every time the checked state changes.
+
+although similar to the oninput event,
+
+(occurs immediately after the value of an element has changed)
+
+the change event is different
+
+
+
+```javascript
+checkbox.addEl('change', (e) => {
+  let groceryList = 'grab the list on the DOM';
+  if (checkbox.checked) {
+    groceryList.style.display = 'none';
+  } else {
+    groceryList.style.display = 'black';
+  }
+})
+```
+
+
+
+
+
 ## Tips
 
 1. console - sources - New Snippet
