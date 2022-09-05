@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <link href="styles.css" rel="stylesheet" />
+    <title>Shopping</title>
+</head>
+
+<body>
+    <!-- wrap our entire section in a <div> element -->
+    <div id="wrapper">
+        <!-- define our header -->
+        <header>
+            <div id="page-top">
+                <h1 class="title">Shopaholic</h1>
+                <p>My shopping list</p>
+                <!-- add search & hide ability inside header  -->
+                <form id="search-item">
+                    <!-- search functionality -->
+                    <input type="text" placeholder="Search items..." />
+                    <!-- hide functionality by using a checkbox-->
+                    <div id="check">
+                        <label for="hide">Hide list</label>
+                        <input type="checkbox" id='hide'>
+                    </div>
+                </form>
+            </div>
+        </header>
+
+        <!-- adding an item to our main list using a <form> element -->
+        <form id="add-item">
+            <input type="text" placeholder="What do you want to buy?" />
+            <button>Add</button>
+        </form>
+        
+        <!-- define our grocery list section inside a <div> tag -->
+        <div id="grocery-list">
+            <h2 class="title">Items To Buy</h2>
+            <!-- insert each shopping item inside a table  -->
+            <ul>
+                <li>
+                    <span class="item">Milk</span>
+                    <span class="delete">delete</span>
+                </li>
+                <li>
+                    <span class="item">Sugar & Spice</span>
+                    <span class="delete">delete</span>
+                </li>
+                <li>
+                    <span class="item">Something to drink (e.g. coke)</span>
+                    <span class="delete">delete</span>
+                </li>
+                <li>
+                    <span class="item">Pizza (pref margarita)</span>
+                    <span class="delete">delete</span>
+                </li>
+            </ul>
+        </div>
+
+        <!-- add tabs at bottom of page -->
+        <div id="tab-wrapper">
+            <ul class="heading">
+                <li data-clicked="#joke" class="active">Food Joke</li>
+                <li data-clicked="#facts">Did you know</li>
+            </ul>
+            <div id="joke" class="panel">
+                <p>What do you call a fake noodle?</p>
+                <button id="showAnswer">Answer</button>
+                <p id="answer"></p>
+            </div>
+            <div id="facts" class="panel">
+                <p>This is what I learnt about food this week</p>
+                <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Eaque debitis eum, tempora exercitationem fugiat laboriosam? Iure, minus nesciunt consequuntur, rerum reiciendis sed consequatur excepturi aut commodi officiis, libero veritatis quod.</p>
+            </div>
+        </div>
+
+    </div>
+    <!-- add our JavaScript -->
+    <script src="app.js"></script>
+</body>
+
+</html>

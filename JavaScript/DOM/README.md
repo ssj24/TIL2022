@@ -1946,6 +1946,271 @@ checkbox.addEl('change', (e) => {
 
 
 
+### Search Items
+
+keyup event handling
+
+case insensitive searching
+
+
+
+- access input inside the form
+
+  1. give the input ID
+
+  2. document.forms will return HTMLCollection of forms
+
+     form['search-item'].querySelector('input');
+
+  declare `const SEARCH`
+
+  ```javascript
+  SEARCH.addEventListener('keyup', (e) => {
+    let text = e.target.valut.toLowerCase();
+  })
+  ```
+
+  - toLowerCase()
+
+    converts text tinto lower case
+
+    JS function of String object(`console.dir(String)`)
+
+    no argument
+
+    it does not alter the original string
+
+    it generates a new modified string
+
+- convert HTMLCollection to an array
+
+  HTMLCollection is a result of an getElementsByTagName
+
+  why do we need to convert to an array? 
+
+  ​	to use array's method like forEach
+
+  `let groceriesArray = Array.from(groceries);`
+
+  - Array.from(arg1, arg2, arg3)
+
+    creats an array from
+
+    - array-like object: objects which have a length property and indexed elements
+    - iterable object: map, set...
+
+    JS function of Array object
+
+    introduced as part of ES6
+
+    `Array.from('woof')` => ['w', 'o', 'o', 'f']
+
+    arg1: array like object or iterable object
+
+    arg2: map
+
+    arg3: this
+
+    arg2 and arg3 are optional
+
+    ```javascript
+    let arr = ['dog', 'cat'];
+    function handler(animal) {
+      return `A ${animal} is so cute!!`;
+    }
+    console.log(Array.from(arr, handler));
+    // ['A dog is so cute!!', 'A cat is so cute!!']
+    ```
+
+- access item lists
+
+  ```
+  div#grocery-list
+  	h2.title
+  	ul
+  		li
+  			span.item
+  			span.delete
+  ```
+
+  span.item has a name of items: this is the target of search
+
+  ```javascript
+  let groceryList = document.querySelector('#grocery-list ul');
+  let groceries = groceryList.getElementsByTagName('li');
+  let groceriesArray = Array.from(groceries);
+  groceryArray.forEach((grocery) => {
+    let groceryName = grocery.firstElementChild.textContent;
+    let groceryNameLower = groceryName.toLowerCase();
+    if(groceryNameLower.indexOf(text) == -1) {
+      grocery.style.display = 'none';
+    } else {
+      grocery.style.display = 'block';
+    }
+  })
+  ```
+
+  use indexOf to see if the text can be found within groceryName.
+
+  if nothing is found, -1 will be returned
+
+  - indexOf()
+
+    tells you if a given item can be found in an `array` or `string`
+
+    from 2009
+
+    `indexOf(search Item, starting Point)`
+
+    if starting point is omitted, default value is 0
+
+    if no item is found, return value is -1
+
+    if item is found, return value is an index of the item.
+
+    ```javascript
+    [1, 2, 3, 4].indexOf(2) // 1
+    [1, 2, 3, 4].indexOf(5) // -1
+    [1, 2, 3, 4].indexOf('2') // -1
+    [1, 2, 3, 4].indexOf(2, 2) // -1
+    [1, 2, 3, 4].indexOf(2, 1) // 1
+    ```
+
+    - strict equality(===). case sensitive for sure
+    - though we limited the searching area by giving second argument, return index is from entire array.
+
+    ```javascript
+    let sentence = "hello world!";
+    sentece.indexOf('world'); // 6
+    ```
+
+    if there is multiple target word in the string,
+
+    first one's first index would be returned.
+
+    if I want to get the second one's index,
+
+    `sentence.indexOf('world', sentence.indexOf('world') + 1);`
+
+    it will search for the 'world' from index 7
+
+    - -1 is not equal to false
+
+      `if('red fox'.indexOf('Red') == false)` phrase will not be executed!
+
+      `if('red fox'.indexOf('Red') == -1)` phrase will 
+
+  
+
+  if search item is exist, change the display to block. otherwise display is none.
+
+- final code
+
+  ```javascript
+  let groceryList = document.querySelector('#grocery-list ul');
+  
+  const SEARCH = document.forms['search-item'].querySelector('input');
+  SEARCH.addEventListener('keyup', (event) => {
+      let text = event.target.value.toLowerCase();
+      let groceries = groceryList.getElementsByTagName('li');
+      let groceryArray = Array.from(groceries);
+      groceryArray.forEach((grocery) => {
+          let groceryName = grocery.firstElementChild.textContent;
+          groceryNameLower = groceryName.toLowerCase();
+          if(groceryNameLower.indexOf(text) == -1) {
+              grocery.style.display = 'none';
+          } else {
+              grocery.style.display = 'block';
+          }
+      })
+  })
+  ```
+
+  
+
+### clear the input text
+
+when user clicks add button, clear the input text
+
+```javascript
+submit handler {
+  // after get the text from input value
+  formAdd.querySelector('input').value = null;
+}
+```
+
+
+
+### tabs at the bottom
+
+```
+div#tab-wrapper
+	ul.heading
+		li <= tab1 <li data-clicked="#joke" class='active'>
+		li <= tab2 <li data-clicked="#facts">
+	div#joke.panel
+		p
+		p
+	div#facts.panel
+		p
+		p
+```
+
+```css
+#tab-wrapper .panel {
+  display: none;
+}
+#tab-wrapper .panel.active {
+  display: block;
+}
+#tab-wtapper .selected {
+  background-color: salmon;
+}
+```
+
+- data attribute
+
+  HTML5 introduced it
+
+  it allows us to store some extra information in our html element with no particular meaning
+
+  syntax: include an attribute with a name that starts with `data-`
+
+  JS is needed to read the value of data attribute
+
+  `element.dataset.[your data name]`
+
+```javascript
+let selectedPanel = null;
+let panels = document.querySelectorAll('.panel'); // NodeList
+// use event bubbling
+let headings = document.querySelector('.heading');
+headings.addEventListened('click', (e) => {
+  let target = e.target;
+  let dataAttr = target.dataset.clicked;
+  if (target.tagName == "LI") {
+    // remove the currently selected element
+    if (selectedPanel != null) {
+      selectedPanel.classList.toggle('selected');
+    };
+    selectedPanel = target;
+    selectedPanel.classList.toggle('selected');
+    let targetPanel = document.querySelector(dataAttr);
+		panels.forEach((panel) => {
+      if (panel == targetPanel) {
+        panel.classList.add('active');
+      } else {
+        panel.classList.remove('active');
+      }
+    })
+  }
+})
+```
+
+dataAttr is the value of data-selected.
+
+what we gave to data-selected is an id like '#joke'
+
 
 
 ## Tips
@@ -1995,3 +2260,6 @@ checkbox.addEl('change', (e) => {
 9. `getElementsByTagName('div');` the lowercase is fine in this method.
 
    BUT! `element.tagName` returns in all CAPITAL.
+   
+10. Quokka! jsdom-quokka-plugin
+   you could see the expected result of running immediately in output tab
