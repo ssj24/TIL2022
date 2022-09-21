@@ -809,13 +809,613 @@ ajax 응답이 오면
 
 if-else 구문을 실행한다
 
+
+
+이렇게 코드가 순서대로 실행된다는 가정에는 문제가 있다
+
+```javascript
+doA( function(){
+	doB();
+
+	doC( function(){
+		doD();
+	} )
+
+	doE();
+} );
+
+doF();
+```
+
+doA - doF - doB - doC - doE - doD순인 것을 바로 알아볼 수 있을까?
+
+
+
+순서대로 함수의 이름을 바꿔보겠다
+
+```javascript
+doA( function(){
+	doC();
+
+	doD( function(){
+		doF();
+	} )
+
+	doE();
+} );
+
+doB();
+```
+
+doA와 doD가 async가 아니라면 어떨까?
+
+sync 함수라면 순서가 A-C-D-F-E-B가 될 것이다
+
+중첩된 것이 문제일까?
+
+중첩은 분명히 문제의 원인 중 하나가 맞다
+
+
+
+아래는 중첩을 사용하지 않고 짠 코드다
+
+```javascript
+listen( "click", handler );
+
+function handler() {
+	setTimeout( request, 500 );
+}
+
+function request(){
+	ajax( "http://some.url.1", response );
+}
+
+function response(text){
+	if (text == "hello") {
+		handler();
+	}
+	else if (text == "world") {
+		request();
+	}
+}
+```
+
+이 코드는 중첩을 사용하지 않았지만 여전히 콜백 헬이라고 불리울만하다
+
+
+
+우리가 코드를 한 줄씩 분석을 하면 흐름을 보기 위해
+
+이 함수에서 저 함수로 왔다갔다하게 된다
+
+단순화된 버전인 이 코드에서도 그렇다면 실제 코드에서는 훨씬 더 복잡한 양상을 보일 것이다
+
+
+
+2, 3, 4단계는 연속해서 일어나니까 하나로 묶는다면
+
+1단계에서 2단계를, 2단계에서 3단계를, 4단계에서 3단계를 하드 코딩으로 콜백하기만 하면 된다
+
+하드코딩이 꼭 나쁜 것만은 아니다
+
+2단계에서 3단계로 가는 것이 언제나 필요한 일이라면 말이다
+
+
+
+하지만 하드코딩은 코드를 유연하지 않게 만든다
+
+2단계가 실패한다면 3단계로는 절대 갈 수 없고, 
+
+2단계를 다시 시도하지도 않을 것이며
+
+에러 핸들링 단계로 이동하지도 않을 것이다
+
+그런 처리를 위해서는 단계마다 각 과정을 다 하드코딩해줘야 하는데
+
+반복적이고 재사용 불가능한 코드들이 쓰여지게 된다
+
+이것이 바로 콜백 헬의 진면목이다
+
+중첩이나 들여쓰기는 콜백 헬의 부차적인 모습일 뿐이다
+
+
+
+중요한 것은 우리의 뇌가 계획을 짜는 것과 콜백 async 코드가 맞지 않는다는 것이다
+
+코드에 비동기성을 표현할 때 우리 뇌가 동작하는 것처럼 짜려고 하는 마음과 싸워야 한다
+
+
+
 ### Trust Issues
+
+```javascript
+// A
+ajax( "..", function(..){
+	// C
+} );
+// B
+```
+
+A, B는 지금 실행되는 부분으로 메인 javascript 프로그램의 지배를 받는다
+
+하지만 C는 나중에 실행되는 부분으로 javascript가 아닌 제3자, 여기서는 ajax 함수의 지배를 받는다
+
+대개 이런 식으로 지배력을 상실하는 것이 문제를 불러일으키지는 않는다
+
+
+
+하지만 가끔은 그런 일도 일어난다
+
+callback-driven 디자인의 가장 안 좋은 문제라고 볼 수도 있다
+
+예시의 ajax가 내가 쓴 함수가 아니거나 내가 직접적으로 컨트롤할 수 있는 함수가 아니라
+
+제 3자에 의해 제공받은 유틸리티라면 어떨까?
+
+
+
+이것을 제어의 역전(inversion of control)이라고 한다
+
+프로그램의 일부분을 컨트롤할 수 있는 권한을 제 3자에게 넘긴 것이다
+
+
+
+#### Tale of Five Callbacks
+
+제어의 역전 현상이 큰 문제가 아닌 것처럼 보일 수 있다
+
+그러나 이는 신뢰도 문제와 관련이 있다
+
+
+
+비싼 TV를 파는 사이트의 결제 시스템을 만든다고 하자
+
+모든 단계의 페이지를 잘 만들어놨고
+
+마지막 페이지에서 사용자가 '결제' 버튼을 누르면 
+
+거래를 분석하는 회사의(제 3자) 함수를 불러와서 이 판매를 트래킹하게 한다
+
+이 제 3자의 함수가 비동기적인 트래킹 기능을 제공하기 때문에(아마도 퍼포먼스를 위해서)
+
+나는 콜백 함수를 불러야 한다
+
+이렇게 콜백 함수를 부른 뒤에 사용자의 신용 카드에 비용을 청구할 수 있고
+
+사용자에게 구매 감사하다는 페이지를 띄울 수 있다
+
+
+
+제 3자의 함수는 아래와 같이 생겼다
+
+```javascript
+analytics.trackPurchase( purchaseData, function(){
+	chargeCreditCard();
+	displayThankyouPage();
+} );
+```
+
+모든 기능은 잘 작동하는 걸 테스트했고 프로덕션을 위한 배포까지 마쳤다
+
+
+
+6개월이 지날 때까지 아무 문제가 없었고
+
+이 코드를 쓴 기억마저 희미해지고 있던 한 아침 전화가 울린다
+
+VIP 손님이 한 TV가 다섯 번 결제됐다고 항의하는 전화다
+
+무엇이 문제였을까?
+
+
+
+코드를 훑어본 결과 문제는 트래킹 분석 유틸리티일 수 밖에 없다는 결론이 나온다
+
+이 함수가 콜백 함수를 다섯번이나 부른 것이다
+
+그들이 제공하는 문서에 이런 에러는 나와있지 않다
+
+
+
+트래킹 분석 회사에 문의를 남기고 답변을 받았다
+
+개발자가 실험적 코드를 짜고 있었는데
+
+특정 조건 하에서는 타임아웃으로 실패하기 전에 5초 동안 콜백을 1초에 한번씩 부르는 코드였다
+
+이를 프로덕션 코드로 만들 의도가 없었는데
+
+어쩌다보니 그렇게 됐다;;
+
+너무 죄송하고 앞으로 절대 그런 일이 없게 하겠다는 내용이다
+
+
+
+상사에게 해당 내용을 보고했지만 상사는 더 이상 그 회사를 믿을 수 없고(나에 대한 신뢰도 좀 약해졌고)
+
+그런 일을 방어할 수 있는 방법을 만들어내라고 한다
+
+
+
+나는 즉석에서 다음과 같은 코드를 짠다
+
+```javascript
+var tracked = false;
+
+analytics.trackPurchase( purchaseData, function(){
+	if (!tracked) {
+		tracked = true;
+		chargeCreditCard();
+		displayThankyouPage();
+	}
+} );
+```
+
+QA가 만약 제 3자의 코드가 콜백을 아예 안 부르면 어떡하냐고 묻는다
+
+
+
+콜백과 관련해서 생길 수 있는 모든 불상사를 떠올려본다
+
+- 트래킹이 되기 전 너무 빠르게 콜백을 부른다
+- 콜백을 너무 늦게 부르거나 아예 부르지 않는다
+- 콜백을 너무 적게 혹은 너무 많이 부른다
+- 필수 환경이나 인자를 넘기는 데 실패한다
+- 에러나 예외 상황을 알리지 않는다
+
+이런 리스트를 떠올리며 생각한다
+
+이제 신뢰할 수 없는 유틸리티에 넘겨질 콜백 하나하나마다 이런 코드를 짜야하는 구나...
+
+콜백 헬에 빠졌구나...
+
+
 
 #### Not Just Others' Code
 
+이것이 제 3자의 유틸리티를 사용했기 때문에 생기는 문제일까?
+
+내가 직접 짠 API나 라이브러리를 사용한다면 신뢰도 문제는 없을까?
+
+
+
+이런 문제를 겪다 보면 내가 스스로 방어적인 함수를 만들어야겠다는 생각을 할 수 있다
+
+```javascript
+function addNumbers(x,y) {
+	// 어떤 인자가 들어오느냐에 따라 예상치 못한 결과를 볼 수 있다
+	return x + y;
+}
+
+addNumbers( 21, 21 );	// 42
+addNumbers( 21, "21" );	// "2121"
+```
+
+
+
+이 코드의 신뢰도를 높이기 위해 다음과 같은 코드를 짠다
+
+```javascript
+function addNumbers(x,y) {
+	// ensure numerical input
+	if (typeof x != "number" || typeof y != "number") {
+		throw Error( "Bad parameters" );
+	}
+	return x + y;
+}
+
+addNumbers( 21, 21 );	// 42
+addNumbers( 21, "21" );	// Error: "Bad parameters"
+```
+
+좀 더 친숙한 버전으로 신뢰도를 높인 코드도 있다
+
+```javascript
+function addNumbers(x,y) {
+	// ensure numerical input
+	x = Number( x );
+	y = Number( y );
+	return x + y;
+}
+
+addNumbers( 21, 21 );	// 42
+addNumbers( 21, "21" );	// 42
+```
+
+이런 식으로 신뢰도를 올린 코드는 흔하다
+
+"Trust But Verify"
+
+
+
+그렇다면 이렇게 비동기 함수 콜백을 짜서 통제권을 확보할 수 있지 않을까?
+
+물론 그래야한다
+
+그러나 콜백은 우리를 돕기 위한 어떤 것도 제공하지 않는다
+
+그래서 각 비동기 콜백 함수마다 반복되는 코드를 짜야 한다
+
+
+
+제어의 반전이 콜백 함수와 관련해서 해결해야 할 가장 큰 문제다
+
+콜백 함수를 쓰고 있는데(제 3자의 유틸리티든 아니든) 제어의 반전을 막는 로직이 없다면
+
+그 코드는 잠재적 버그를 가지고 있는 것이다
+
+
+
 ### Trying to Save Callbacks
 
+신뢰도 문제를 해결하기 위한 콜백 디자인들이 몇 개 있다
+
+
+
+에러 핸들링에 주력하는 패턴. 콜백을 나눈다(하나는 성공, 하나는 에러를 다룸)
+
+```javascript
+function success(data) {
+	console.log( data );
+}
+
+function failure(err) {
+	console.error( err );
+}
+
+ajax( "http://some.url.1", success, failure );
+```
+
+이 디자인을 사용하는 API는 보통 failure 에러 핸들러의 사용이 필수가 아니다
+
+그래서 failure를 사용하지 않으면 그냥 에러를 표시하지 않는다
+
+이 디자인이 바로 ES6 프로미스 API가 사용하는 디자인이다
+
+
+
+또 다른 패턴으로 error-first 스타일이 있다
+
+(Node.js API의 거의 모든 컨벤션에서 사용되서 node 스타일이라고 부르기도 한다)
+
+콜백의 첫 인자가 에러 오브젝트다
+
+만약 성공하면 에러 오브젝트는 empty/falsy가 된다
+
+다음 인자가 있다면 성공한 데이터다
+
+실패하면 에러 오브젝트가 set/truthy가 되고 대개 다음 인자는 없다
+
+```javascript
+function response(err,data) {
+	// error?
+	if (err) {
+		console.error( err );
+	}
+	// otherwise, assume success
+	else {
+		console.log( data );
+	}
+}
+
+ajax( "http://some.url.1", response );
+```
+
+
+
+두 패턴 모두 신뢰도 문제를 해결하지 못 했다
+
+예상치 못하게 반복되는 콜백 호출을 막을 수 있는 코드가 없다
+
+성공, 에러, 혹은 둘 다 아닌 경우에 다 대응해야 해서 더 어려워졌다
+
+이게 표준 패턴이긴 하지만 쓸데없이 길게 쓰여진 면이 있다
+
+
+
+콜백을 아예 부르지 않는 신뢰도 문제는 어떻게 해야 할까?
+
+이게 문제라면 이벤트를 취소하는 타임아웃을 만들어야 한다
+
+```javascript
+function timeoutify(fn,delay) {
+	var intv = setTimeout( function(){
+			intv = null;
+			fn( new Error( "Timeout!" ) );
+		}, delay )
+	;
+
+	return function() {
+		// timeout hasn't happened yet?
+		if (intv) {
+			clearTimeout( intv );
+			fn.apply( this, [ null ].concat( [].slice.call( arguments ) ) );
+		}
+	};
+}
+
+// using "error-first style" callback design
+function foo(err,data) {
+	if (err) {
+		console.error( err );
+	}
+	else {
+		console.log( data );
+	}
+}
+
+ajax( "http://some.url.1", timeoutify( foo, 500 ) );
+```
+
+
+
+너무 빨리 콜백함수가 호출되는 문제는 비결정주의와도 관련이 있다
+
+콜백은 항상 비동기적으로 호출해야 한다
+
+> Zalgo라는 동기/비동기와 관련한 가상의 몬스터가 있을 정도다
+>
+> Don't Release Zalgo!(https://github.com/oren/oren.github.io/blob/master/posts/zalgo.md)
+>
+> Designing APIs for Asynchrony(http://blog.izs.me/post/59142742143/designing-apis-for-asynchrony)
+
+
+
+```javascript
+function result(data) {
+	console.log( a );
+}
+
+var a = 0;
+
+ajax( "..pre-cached-url..", result );
+a++;
+```
+
+위의 코드가 동기적인 콜백이라 0을 프린트할까
+
+비동기적인 콜백이라 1을 프린트할까?
+
+이는 조건에 따라 달라진다
+
+Zalgo의 무서움이 느껴질 거라고 믿는다
+
+
+
+다루는 API가 비동기적으로 동작하는지 알 수 없을 때는 어떻게 해야할까?
+
+비동기성을 확인하기 위한 `asyncify`를 만들어서 활용해보자
+
+```javascript
+function asyncify(fn) {
+	var orig_fn = fn,
+		intv = setTimeout( function(){
+			intv = null;
+			if (fn) fn();
+		}, 0 )
+	;
+
+	fn = null;
+
+	return function() {
+		// firing too quickly, before `intv` timer has fired to
+		// indicate async turn has passed?
+		if (intv) {
+			fn = orig_fn.bind.apply(
+				orig_fn,
+				// add the wrapper's `this` to the `bind(..)`
+				// call parameters, as well as currying any
+				// passed in parameters
+				[this].concat( [].slice.call( arguments ) )
+			);
+		}
+		// already async
+		else {
+			// invoke original function
+			orig_fn.apply( this, arguments );
+		}
+	};
+}
+
+function result(data) {
+	console.log( a );
+}
+
+var a = 0;
+
+ajax( "..pre-cached-url..", asyncify( result ) );
+a++;
+```
+
+ajax 요청이 캐시에 있어 콜백 함수를 바로 요청해야 하거나
+
+나중에 비도이적으로 수행해야 하거나 상관없이
+
+이 코드는 언제나 0이 아니라 1을 내놓는다
+
+(result()는 비동기적으로 호출될 수밖에 없으므로 a++은 result()보다 앞서서 동작한다)
+
+
+
+콜백 함수를 이용해서 많은 것들을 할 수 있지만
+
+들여야 하는 시간과 정성이 매우 크다
+
+다양한 신뢰 문제를 해결하기 위해 여러 콜백 함수에 재사용할 수 있는 방법이 필요한데
+
+ES6가 내놓은 해답이 Promise다
+
+
+
 ## Promises
+
+
+
+### What is a promise?
+
+#### Future Value
+
+#### Completion Event
+
+
+
+### Thenable Duck Typing
+
+
+
+### Promise Trust
+
+
+
+#### Calling too early
+
+
+
+#### Calling too late
+
+
+
+#### Never calling the callback
+
+
+
+#### Calling too few or too many times
+
+
+
+#### Failing to Pass Along Any Parameters/Environment
+
+
+
+#### Swallowing Any Errors/Exceptions
+
+
+
+#### Trustable Promise?
+
+
+
+#### Trust Built
+
+
+
+### Chain Flow
+
+
+
+### Error Handling
+
+
+
+### Promise Patterns
+
+
+
+### Promise API Recap
+
+
+
+### Promise Limitations
 
 ## Generators
 
