@@ -42,6 +42,8 @@
 
   go to `tsconfig.json` - `strict: false`
 
+  if you don't want to have git, `ng new [pjt_name] --no-strict --skip-git`
+
   
 
 - Editing the first app
@@ -126,6 +128,7 @@
 
 - How an Angular App gets loaded and started
 	
+
 the one served by the browser is `index.html`
 	
 app-root is written like `<app-root>Loading...</app-root>` in index.html
@@ -135,9 +138,10 @@ app-root is written like `<app-root>Loading...</app-root>` in index.html
 	through the `selector` of component.ts @Component, the component can be referenced at index.html
 	
 	`selector: "app-root"`	=> `<app-root></app-root>` in index.html
-	
-	
-	
+
+
+​	
+​	
 	- how is angular triggered?
 	
 		though we didn't import script file, ng server do that for us
@@ -145,9 +149,10 @@ app-root is written like `<app-root>Loading...</app-root>` in index.html
 		if you check the source at development tool, there are bunch of scripts at index.html
 		
 		those js files do bundling and other things for us.
-		
-		
-	
+
+
+​		
+​	
 - Component
 
   component: reusable
@@ -233,7 +238,9 @@ app-root is written like `<app-root>Loading...</app-root>` in index.html
 
     app / servers / [css, html, spec, ts]
 
-    (spec.ts is for testing. you could remove it for now)
+    (spec.ts is for testing. you could remove it for now.
+
+    to not create it from the first, `ng g c servers --skip-tests`)
 
     app.module.ts is updated automatically, too.
 
@@ -412,9 +419,9 @@ app-root is written like `<app-root>Loading...</app-root>` in index.html
      4. ngDoCheck
 
          	1. ngASfterContentInit
-         	2. ngAfterContentChecked
-         	3. ngAfterViewInit
-         	4. ngAfterViewChecked
+              	2. ngAfterContentChecked
+              	3. ngAfterViewInit
+              	4. ngAfterViewChecked
 
      5. ngOnDestroy
 
@@ -490,10 +497,216 @@ app-root is written like `<app-root>Loading...</app-root>` in index.html
     two-way binding combines property and event
 
     `<input [(ngModel)] = "servetName">`
+  
+    
+    
+  - assignment
+  
+    1. add a input field wich updates a property "username" via two-way-binding
+    2. output the usernameproperty vis string interpolation(in a paragraph below the input)
+    3. add a button which may only be clicked if the username is NOT an empty string
+    4. upon clicking the button, the username should be reset to an empty string
+  
+  
+  
+- Directives
+
+  Directives are instructions in the DOM(like constructor())
+
+  directives can have(not necessarily) template
+
+   - ngIf
+
+     ```html
+     <p *ngIf = "booleanExpression">
+       this paragraph is not exist until the value binded here is true
+     </p>
+     
+     how about else condition?
+     
+     <p *ngIf = "booleanExpression; else falsyOnly;">
+       this paragraph is not exist until the value binded here is true
+     </p>
+     <p #falsyOnly>
+       you could see this phrase when the value of if condition is false
+       # appended in front is for local reference
+     </p>
+     ```
+
+     there is `ng-complete` tag. 
+
+     used to mark places in the dom
+
+     ```html
+     <ng-template #falsyOnly>
+     	<p #falsyOnly>
+         you could see this phrase when the value of if condition is false
+         # appended in front is for local reference
+       </p>
+     </ng-template>
+     ```
+
+     
+
+   - ngStyle
+
+     used for dynamic styling
+
+     unlike structural directives, attribute directives don't add or remove element
+
+     they only change the element they were placed on
+
+     ```html
+     <p [ngStyle] = "{'background-color': getColor()}">
+     	[] shows it's bindied to the value
+     <p [ngStyle] = "{backgroundColor: getColor()}">
+       you don't need to add quote mark unless it includes -
+     <p [ngStyle] = "{'background-color': i > 4 ? 'blue' : 'red'}">
+       you can write conditional operator, too
+     ```
+
+     
+
+   - ngClass
+
+     dynamic class
+
+     same as ngStyle
+
+     ```html
+     <p [ngClass] = "{online: serverStatus === 'online'}">
+       since online class doesn't have dash init, you don't need to wrap it with quote.
+       only if the condition is true(serverStatus strictly equals to online), online class will be added.
+     </p>
+     ```
+
+     
+
+   - ngFor
+
+     ```html
+     <p *ngFor = "let server of servers">
+       
+     <p *ngFor = "let server of servers; let i = index">
+       if you need to access index, define any variable and then assign `index` to it
+     ```
+
+     
+
+   - assignment
+
+     1. add a btn 'Display Details'
+     2. add a paragraph with any content of your choice
+     3. toggle the displaying of that paragraph with the btn created in the step 1
+     4. log all btn clicks in an array and output that array below the secret paragraph(with tiemstamp or increasing number)
+     5. starting of the 5th log item, give all future log items a blue background(ngStyle) and white color(ngClass)
 
   
 ### pjt
+
+1. Planning the App
+
+   layout the structure
+
+   - feature: shopping list, recipe book
+
+   - component: 
+
+     root > header, shoppinglist, recipes
+
+     shopping list > shopping edit
+
+     recipes > recipe list, recipe detail
+
+     recipe list > recipe item
+
+     > you can use cli command for nested folder structure
+     >
+     > `ng g c recipes/recipe-list --skip-tests`
+
+   - model: ingredient, recipe
+
+   
+
+2. recipe model
+
+   ```typescript
+   // recipes/recipe.model.ts
+   export class Recipe {
+     public name: string;
+     public description: string;
+     public imagePath: string;
+     constructor(name: string, desc: stirng, imagePath: string) {
+       this.name = name;
+       this.description = desc;
+       this.imagePath = imagePath;
+     }
+   }
+   ```
+
+   ```typescript
+   // recipe-list.component.ts
+   import {Recipe} from '../recipe.model';
+   export... {
+   	recipes: Recipe[] = [
+       new Recipe('A test', 'test desc', 'https://~');
+     ]
+   }
+   ```
+
+   when you use ngFor for imagePath
+
+   - src = "{{recipe.imagePath}}"
+
+   - [src] = "recipe.imagePath"
+
+     
+
+3. ingredient model
+
+   there is shorcut
+
+   ```typescript
+   // app/shared/ingredient.model.ts
+   // ingredient will be used in multiple components.
+   // make a shared folder right below app
+   export class Ingredient {
+     constructor(public name: string, public amount: number) {}
+   }
+   ```
+
+   this is just same as declare public name and amout, then assign the value from constructor.
+
+   ```typescript
+   // shopping-list.component.ts
+   ingredients: Ingredients[] = [
+     new Ingredient('Apple', 5),
+     new Ingredient('Tomatoe', 10),
+   ]
+   ```
+
+   
+
+4. bootstrap
+
+   `<span class="caret"></span>` => :small_red_triangle_down:
+
 ## debugging
+
+when error message is not enough to solve the issues,
+
+use `Browser Sourcemaps`
+
+- devtool / sources / main.bundle.js
+
+  if you click the line you think the problem exists, it will show you the ts file of that code
+
+- devtool / sources / webpack /. /src/
+
+  you can access to ts file(our src folder) directly
+
+- do debugging in here
+
 ## components&databinding
 ### pjt
 ## directives
