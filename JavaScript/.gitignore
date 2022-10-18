@@ -5,3 +5,4 @@ dist/
 .cache/
 .env
 .npm
+.DS_Store
