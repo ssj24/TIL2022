@@ -1,5 +1,7 @@
-# Angular
+# Angular-the complete guide
 [Angular - The Complete Guide (2022 Edition)](https://www.udemy.com/course/the-complete-guide-to-angular-2/)
+
+[toc]
 
 
 
@@ -128,31 +130,25 @@
 
 - How an Angular App gets loaded and started
 	
-
-the one served by the browser is `index.html`
-	
-app-root is written like `<app-root>Loading...</app-root>` in index.html
+	the one served by the browser is `index.html`
+		
+	app-root is written like `<app-root>Loading...</app-root>` in index.html
 	
 	but there isn't Loading... on the browser.
 	
 	through the `selector` of component.ts @Component, the component can be referenced at index.html
 	
 	`selector: "app-root"`	=> `<app-root></app-root>` in index.html
-
-
-​	
-​	
-	- how is angular triggered?
 	
-		though we didn't import script file, ng server do that for us
-		
-		if you check the source at development tool, there are bunch of scripts at index.html
-		
-		those js files do bundling and other things for us.
+- how is angular triggered?
 
+  though we didn't import script file, ng server do that for us
 
-​		
-​	
+  if you check the source at development tool, there are bunch of scripts at index.html
+
+  those js files do bundling and other things for us.
+  	
+
 - Component
 
   component: reusable
@@ -185,6 +181,8 @@ app-root is written like `<app-root>Loading...</app-root>` in index.html
   components can be used multiple times
 
   you could see by just adding `<app-server></app-server>` several times in the server.component.html
+
+  it's good to make app component has only child components
 
   
 
@@ -691,6 +689,8 @@ app-root is written like `<app-root>Loading...</app-root>` in index.html
 
    `<span class="caret"></span>` => :small_red_triangle_down:
 
+   
+
 ## debugging
 
 when error message is not enough to solve the issues,
@@ -707,7 +707,198 @@ use `Browser Sourcemaps`
 
 - do debugging in here
 
+  
+
 ## components&databinding
+
+- ```typescript
+  element: {type: string, name: string, content: string};
+  
+  // it is not a type definition. it's just normal assignment
+  serverElements = [{type: string, name: string, content: string}];
+  ```
+
+- property of component is only accessible from that component.
+
+  if you want to allow parent component to access, use decorator!
+
+  ```typescript
+  import {Component, Input} from '@angular/core';
+  export class {
+    @Input() element: {type: string, name: string, content: string};
+    // now element property of server-element component is accessible from parent component(== as long as the component is importing server-element component)
+  }
+  ```
+
+  you could set alias
+
+  `@Input('svrElement') element: {type: string, name: string, content: string};`
+
+  `srvElement` is the name you could access to element property from outside of the component
+
+  `element` is only for the current component
+
+  
+
+- emit the event to the parent component
+
+  ```html
+  <!-- app.html -->
+  <app-cockpit (serverCreated)="onServerAdded($event)"></app-cockpit>
+  ```
+
+  `serverCreated` event is not the built-in event but the custom event
+
+  
+
+  ```typescript
+  // app.ts
+  serverElements = [{type: string, name: string, content: string}];
+  onServerAdded(serverData: {serverName: string, serverContent: string}) {
+    this.serverElements.push({
+      type: 'server',
+      name: serverData.serverName,
+      content: serverData.serverContent
+    });
+  }
+  ```
+
+  serverData is the $event emitted from template
+
+  
+
+  ```typescript
+  // cockpit.ts
+  import {Component, EventEmitter} from '@angular/core';
+  
+  serverCreated = new EventEmitter<{serverName: string, serverContent: string}>();
+  onAddServer() {
+    this.serverCreated.emit({
+      serverName: this.newServerName,
+      serverContent: this.newServerContent,
+    })
+  }
+  ```
+
+  to make serverCreated be heard from outside...
+
+  ```typescript
+  import {Component, EventEmitter, Output} from '@angular/core';
+  
+  @Output() serverCreated = new EventEmitter<{serverName: string, serverContent: string}>();
+  ```
+
+  you could assign an alias like Input
+
+  :exclamation:However, using output, input is not the best practice especially for complex application
+
+  
+
+- view encapsulation
+
+  by adding custom attribute to element by component, angular make css file applied within that component
+
+  `<p _ngcontent-ejo-1>` like this one
+
+  if you want to modify it,
+
+  ```typescript
+  import {Component, ViewEncapsulation} from '@angular/core';
+  
+  @Component({
+    encapsulation: ViewEncapsulation.Emulated;
+  })
+  ```
+
+  there are three options for ViewEncapsulation
+
+  - Emulated
+
+    default
+
+  - None
+
+    no attribute is added (for this component)
+
+    if you write css file of this component, it will be affect globally
+
+  - ShadowDom
+
+    same as emulated only when the browser support it
+
+    just think there are only emulated and none
+
+  
+
+- local references in templates
+
+  you can use it on ANY HTML Elements
+
+  if you add `#customRef` to the input element,
+
+  you can refer this input within that template(html!)
+
+  `<button (click)="onAddServer(customRef)">`
+
+  if you pass reference itself like above,
+
+  type is `HTMLInputElement`
+
+  `onAddServer(nameInput: HTMLInputElement) {};`
+
+  
+
+- @ViewChild()
+
+  ```typescript
+  import {Component, ViewChild, ElementRef} from '@angular/core';
+  @ViewChild('customRef', {static: true}) customRef: ElementRef;
+  ```
+
+  customRef is local reference you set in html
+
+  `{static: true}` is needs to be added as a second argument of @ViewChild() and @ContentChild() since Angular 8
+
+  it you plan on accessing the selected element inside of ngOnInit() `true`, not inside ngOnInit() => `false`
+
+  but after Angular 9, false is not need to be added
+
+  
+
+  important thing is do not access DOM with this
+
+  DO NOT `this.customRef.nativeElement.value = 'New';`
+
+  
+
+- everything you place between the opening and closing tag of your own component is LOST by default
+
+  `<app-server>You Can't SEE me</app-server>`
+
+  but, there is a way to display it
+
+  write `<ng-content></ng-content>` inside app-server.html
+
+  then Angular will project it.
+
+  
+
+- Life Cycle
+
+  ![](./screenshots/ang_lifecycle.png)
+
+  :heavy_plus_sign: https://angular.kr/guide/lifecycle-hooks
+
+  ​	
+
+  
+
+- @ContentChild()
+
+  
+
+- Assignment
+
 ### pjt
 ## directives
 ## using services & dependency injection
