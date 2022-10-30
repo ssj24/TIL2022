@@ -889,18 +889,407 @@ use `Browser Sourcemaps`
 
   :heavy_plus_sign: https://angular.kr/guide/lifecycle-hooks
 
-  ​	
+  each life cycle hooking method name comes from life cycle hook interface name prefixed with` ng`
 
-  
+  ex) OnInit interface => ngOnInit() method
+
+  1. ngOnChanges
+
+     when angular sets/resets data-bound input properties
+
+     recieve SimpleChanges object of current and previous property values
+
+     happens frequently
+
+  2. ngOnInit
+
+     디렉티브, 컴포넌트에 바인딩된 입력 프로퍼티 값이 처음 할당된 후
+
+     ngOnChanges가 처음 실행된 후 한 번
+
+     ngOnChanges가 실행되지 않더라도 ngOnInit은 실행된다
+
+     한 번만 실행되니까 초기화는 여기서
+
+     Constructor에는 데이터를 외부에서 받아오고 컴포넌트 초기화하는 등의 로직 쓰지 말기! 이런 건 ngOnInit
+
+     입력 프로퍼티 값을 할당한 후에(constructor) 컴포넌트 초기화가 가능하다
+
+     constructor는 지역 변수 할당만 하게 만드는 게 좋다
+
+     디렉티브에 바인딩되는 입력 프로퍼티 값은 constructor 실행 후 할당된다
+
+     ```typescript
+     constructor(private logger: LoggerService)
+     
+     ngOnInit() {
+       this.logger.log(`#${this.id} onInit`);
+     }
+     ```
+
+     if you add new instance, 
+
+     constructor and ngOnInit will be triggered
+
+     
+
+     ```typescript
+     import {Component, OnInit, OnChanges, simpleChanges} from '@angular/core';
+     
+     export class CLASSNAME implements OnInit, OnChanges {
+       ngOnChanges(changes: simpleChanges) {
+     		console.log(changes);
+       }
+     }
+     ```
+
+     it's good to use implements
+
+     it shows what this component is using more clearly
+
+     
+
+     Before ngOnInit, After constructor
+
+     changes object { 
+
+     ​	element: simpleChange {
+
+     ​		currentValue, 
+
+     ​		firstChange: true, 
+
+     ​		previousValue: undefined
+
+     ​	}
+
+     }
+
+     element on the second line is the binded property
+
+     `element = { content: '-', name: '-', typescriptpe: '-'}`
+
+     simpleChange is types
+
+     currentValue is the value of element
+
+     and since this is the first one, previous Value is undefined
+
+     
+
+  3. ngDoCheck
+
+  4. ngAfterContentInit
+
+  5. ngAfterContentChecked
+
+  6. ngAfterViewInit
+
+  7. ngAfterViewChecked
+
+  8. ngOnDestroy
+
+     
 
 - @ContentChild()
+
+  ```typescript
+  // app.html
+  <app-server-element>
+    <p #contentParagraph>
+  
+  // server_element.component.ts
+  @ContentChild('contentParagraph') paragraph: ElementRef;
+  ```
+
+  @ContentChild is not accessible before ngAfterContentInit.
 
   
 
 - Assignment
 
+  1. create three new components: game control, odd, and even
+  2. game control have button to start/stop the game
+  3. when starting the game, an event(holding a incrementing number) should get emitted each second(ref = setInterval())
+  4. the event should be listenable from outside of the component
+  5. when stopping the game, no more events should get emitted(clearInterval(ref))
+  6. a new odd component should get created for every odd number emitted. and same for event
+  7. output odd-numger, even-number
+  8. style the output text differently
+
 ### pjt
+
+- adding navigation with event binding & ngIf
+
+  ```html
+  <!-- header.html -->
+  Nav > ul > li > <a (click)="onSelect('recipe')"></a>
+  Nav > ul > li > <a (click)="onSelect('shopping-list')"></a>
+  ```
+
+  ```typescript
+  @Output() featureSelected = new EventEmitter<string>();
+  
+  onSelect(feature: string) {
+    this.featureSelected.emit(feature);
+  }
+  ```
+
+  ```html
+  <!-- app.html -->
+  <app-header (featureSelected)="onNavigate($event)">
+  	<app-recipes *ngIf="loadedFeature === 'recipe'"></app-recipes>
+    <app-shopping-list *ngIf="loadedFeature !== 'recipe'"></app-shopping-list>
+  </app-header>
+  ```
+
+  
+
+  you could also send $event and other data
+
+  ```html
+  <a (click)="btnClicked($event, data)"></a>
+  <a (click)="btnClicked(data, $event)"></a>
+  ```
+
+  $event's order is not important. 
+
+  just use this specific name `$event`
+
+  
+
+  ```typescript
+  // app.ts
+  loadedFeature = 'recipe';
+  
+  onNavigate(feature: string) {
+    this.loadedFeature = feature;
+  }
+  ```
+
+  
+
+- passing Recipe data with property binding
+
+  ```html
+  <!-- recipe-list.html -->
+  <app-recipe-item
+  	*ngFor="let recipeEl of recipes"
+    [recipe] = "recipeEl"
+  ></app-recipe-item>
+  ```
+
+  ```typescript
+  // recipe-item.ts
+  @Input() recipe: Recipe; // this one is app-list-item.html's [recipe]
+  ```
+
+  `@Input()` allows us to bind this component property from outside
+
+  
+
+- passing data with Event and property bindings
+
+  ```html
+  <!-- recipe-item.html -->
+  <a (click)="onSelected()"></a>
+  ```
+
+  ```typescript
+  // recipe-item.ts
+  @Output() recipeSelected = new EventEmitter<void>();
+  
+  onSelected() {
+    this.recipeSelected.emit();
+  }
+  ```
+
+  
+
+  ```html
+  <!-- recipe-list.html -->
+  <app-recipe-item
+  	*ngFor="let recipeEl of recipes"
+    [recipe] = "recipeEl"
+    (recipeSelected) = "onRecipeSelected(recipeEl)"
+  ></app-recipe-item>
+  ```
+
+  ```typescript
+  // recipe-list.ts
+  @Output() recipeWasSelected = new EventEmitter<Recipe>();
+  
+  onRecipeSelected(recipe: Recipe) {
+    this.recipeWasSelected.emit(recipe);
+  }
+  
+  ```
+
+  
+
+  ```html
+  <!-- recipes.html -->
+  <app-recipe-list
+  	(recipeWasSelected) = "selectedRecipe = $event"
+  >
+  	<app-recipe-detail
+    	*ngIf="selectedRecipe; else infoText"
+    >
+    </app-recipe-detail>
+    <ng-template #infoText>
+    	<p>
+        Please select a recipe
+      </p>
+    </ng-template>
+  </app-recipe-list>
+  
+  ```
+
+  ```typescript
+  // recipe.ts
+  selectedRecipe: Recipe;
+  ```
+
+  `(recipeWasSelected) = "selectedRecipe = $event"`
+
+  you could assign as inline style! as long as it's simple one
+
+  
+
+  ```typescript
+  // recipe-detai.ts
+  @Input() recipe: Recipe;
+  ```
+
+  ```html
+  <!-- recipes.html -->
+  
+  <app-recipe-detail 
+  	*ngIf="selectedRecipe; else infoText"
+    [recipe]="SelectedRecipe">
+  </app-recipe-detail>
+  
+  
+  <!-- recipe-detail.html -->
+  
+  {{ recipe.name }}
+  <img [src]="recipe.imagePath" alt="{{recipe.name}}">
+  ```
+
+
+
+- add ingredients to the shopping list
+
+  ```html
+  <!-- shopping-edit.html -->
+  
+  <input id="name" #nameInput>
+  <input id="amount" #amountInput>
+  <button (click)="onAddItem()">
+    Add
+  </button>
+  ```
+
+  ```typescript
+  // shopping-edit.ts
+  
+  @ViewChild('nameInput') nameInputRef: elementRef;
+  // if angular8, second argument of ViewChild needs to be {static: false}
+  @ViewChild('amountInput') amountInputRef: elementRef;
+  @Output() ingredientAdded = new EventEmitter<Ingredient>();
+  // Ingredient is imported. Ingredient = {name: string, amount: string}, so you could replace Ingredient with that object. but not recommended of course.
+  
+  onAddItem() {
+    const ingName = this.nameInputRef.nativeElement.value;
+    const ingAmount = this.amountInputRef.nativeElement.value;
+    const newIngredient = new Ingredient(ingName, ingAmount);
+    this.ingredientAdded.emit(newIngredient);
+  }
+  ```
+
+  ```html
+  <!-- shopping-list.html -->
+  <app-shopping-edit (ingredientAdded)="onIngredientAdded($evnet)"></app-shopping-edit>
+  ```
+
+  ```typescript
+  // shopping-list.ts
+  onIngredientAdded(ingredient: Ingredient) {
+    this.ingredients.push(ingredient);
+  }
+  ```
+
+  
+
 ## directives
+
+| attribute directive                                          | structural directive                                         |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| just like normal HTML attribute<br />possibly with data binding or event binding | look like a normal HTML attribute<br />but have a leading *(for desguising) |
+| only affect/change the element they are added to             | affect a whole area in the DOM(elements get added/removed)   |
+
+you could have **only one** structural directive on one element
+
+you could use variable that defined within that element
+
+```html
+<li
+    *ngFor="let odd of oddNumbers"
+    [ngClass]="{oddClass: odd % 2 !== 0}"
+    [ngStyle]="{backgroundColor: add % 2 !== 0 ? 'yellow' : 'transparent'}"
+></li>
+```
+
+odd in ngClass and ngStyle comes form ngFor
+
+
+
+- create own attribute directive
+
+  BasicHighlightDirective is the directive that chagne background of element
+
+  ```typescript
+  // app/basic-highlight/basic-highlight.directive.ts
+  import {Directive} from '@angular/core';
+  
+  @Directive ({
+    selector: `[appBasicHighLight]` 
+    // camel case notation for directive selector
+    // directive's selector is just like component's selector
+  })
+  export class BasicHighlightDirective implements OnInit {
+  	constructor(private elementRef: ElementRef){}
+    
+    ngOnInit() {
+      this.elementRef.nativeElement.style.backgroundColor = 'green';
+      // this statement could be written in constructor but it's better to be in onInit()
+    }
+  }
+  ```
+
+  
+
+  then infore it
+
+  ```typescript
+  // app.module.ts
+  import
+  	declarations: [
+      AppComponent,
+      BasicHighlightDirective
+    ]
+  ```
+
+  now you can set BasicHighlightDirective within any component(without import)
+
+  `<p appBasicComponentligt>Style me </p>`
+
+  it's look like attribute because you've set the name like that
+
+  
+
+- renderer to build a better attribute directive
+
 ## using services & dependency injection
 ### pjt
 ## changing pages with routing
