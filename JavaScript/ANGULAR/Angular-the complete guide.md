@@ -1290,7 +1290,218 @@ odd in ngClass and ngStyle comes form ngFor
 
 - renderer to build a better attribute directive
 
+  access to the elements directly from the ts file is not recommended style(the one used at basic highlight)
+
+  ```typescript
+  // better-highlight / better-highlight.directive.ts
+  import {Directive, OnInit, ElementRef, Renderer2} from '@angular/core';
+  
+  @Directive({ selector: '[appBetterHighlight]'})
+  export class BetterHighlightDirective implements OnInit {
+    constructor(private elRef: ElementRef, private renderer: Renderer2) {}
+    
+    ngOnInit() {
+      this.renderer.setStyle(this.elRef.nativeElement, 'background-color', 'blue', false, false) // 4th optional argument is flag
+    }
+  }
+  ```
+
+  :exclamation: Renderer2
+
+  ```html
+  <p appBetterDirective>
+    Blue
+  </p>
+  ```
+
+- Host Listener
+
+  ```typescript
+  // betterHighlight
+  import {HostListener} from '@angular/core';
+  
+  // HostListener's argument is string of event name : 'mouseenter'
+  @HostListener('mouseenter') mouseover(eventData: Event) { 
+    this.render.setStyle(this.elRef.nativeElement, 'background-color', 'blue', false, false);
+  }
+  
+  @HostListener('mouseleave') mouseleave(eventData: Event) {
+    this.render.setStyle(this.elRef.nativeElement, 'background-color', 'transparent', false, false);
+  }
+  ```
+
+- HostBinding
+
+  render is find but hostbinding is better
+
+  ```typescript
+  // betterHighlight
+  import {HostBinding} from '@angular/core';
+  
+  // camel case!! backgroundColor
+  @HostBinding('style.backgroundColor') backgroundColor: string = 'transparent',
+    // set default value to prevent error
+  constructor
+  ngOnInit
+  @HostListener('mouseenter') mouseover(eventData: Event) {
+    this.backgroundColor='blue';
+    // now you don't need to specify this.render.setStyle~~
+  }
+  ```
+
+- binding to directive properties
+
+  custom property binding
+
+  ```typescript
+  @input() defaultColor: string = 'transparent';
+  @input() highlightColor: string = 'blue';
+  @HostBinding('style.backgroundColor') = this.defaultColor;
+  @HostListener('mouseenter') mouseover(eventData: Event) {
+    this.backgroundColor = this.highlightColor;
+  }
+  ```
+
+  ```html
+  <p 
+     appBetterHighlight
+     [defaultColor] = "'yellow'"
+     [highlightColor] = "'red'"
+     >
+    not transparent / blue
+    but yellow / red
+  </p>
+  ```
+
+  `[defaultColor] = "'yellow'"` == `defaultColor="yellow"`
+
+  you should set default color from `ngOnInit()`
+
+  ngOnInit() {
+
+  ​	this.backgroundColor = this.defaultColor;
+
+  }
+
+- `<ng-template>` is  not rendered element. but when angular needed, it can be rendered
+
+  ```html
+  <ng-template [ngIf]="!onlyOdd"></ng-template>
+  ==
+  <div *ngIf = "!onlyOdd"></div>
+  ```
+
+  ```typescript
+  @Directive({selector: '[appUnless]'})
+  export class UnlessDirective {
+  	@Input() set appUnless(condition: boolean) {
+      // set makes it triggered whenever property changes(change outside of this directive). with set, this Input() is working like method. it is property, just setter of a property
+      if (!condition) {
+        // viewContainerReference?
+        this.vcRef.createEmbeddedView(this.templateRef);
+      } else {
+        this.vcRef.clear(); // remove everything form this view
+      }
+    }
+  }
+  ```
+
+  use this unless directive like ngif
+
+  ```typescript
+  constructor(private templateRef: TemplateRef<any>,
+              private vcRef: ViewContainerRef
+             )
+  ```
+
+  ```html
+  <div *appUnless = "onlyOdd">
+    since it's unless not if, no need to use !onlyOdd.
+    ng-template is not needed, it will be cleared.
+  </div> 
+  ```
+
+- ngSwitch
+
+  built-in structural directive
+
+  ```html
+  <div [ngSwitch]="value">
+    <p *ngSwitchCase="5">Value = 5</p>
+    <p *ngSwitchCase="10">Value = 10</p>
+    <p *ngSwitchCase="15">Value = 15</p>
+    <p *ngSwitchDefault>Value is unset</p>
+  </div>
+  ```
+
+### pjt
+
+- dropdown directive
+
+  ```ts
+  // shared / dropdown.directive.ts
+  // add this directive in app.module
+  @Directive({selector: '[appDropdown]'})
+  export class DropdownDirective {
+    @HostBinding('class.open') isOpen = false;
+    @HostListener('click') toggleOpen() {
+      thisisOpen = !this.isOpen;
+    }
+    
+  }
+  
+  ```
+
+  with this directive, when button.dropdown-toggle in recipe-detail is clicked,
+
+  add open class to the btn-group div(parent of button) and remove the class when it is clicked second time
+
+  ```html
+  // recipe-detail.component.html
+  <div class="btn-group" appDropdown>
+    <button>
+    </button>
+  </div>
+  ```
+
+  ```html
+  // header.html
+  <ul class="nav navbar-right">
+    <li class="dropdown" appDropdown></li>
+  </ul>
+  ```
+
+- close the dropdown from anywhere
+
+  when user clickes anywhere outside of the dropdown, the dropdown will be closed
+
+  ```typescript
+  @HostListener('document.click', ['$event']) toggleOpen(event: Event) {
+    this.isOpen = this.elRef.nativeElement.contains(event.target) ? !this.isOpen : false;
+  }
+  constructor(private elRef: elementRef) {}
+  ```
+
+  
+
 ## using services & dependency injection
+
+- service
+  - reuse code & store data
+  - centralization
+
+- takes a logging service
+
+  ```typescript
+  // app/logging.service.ts
+  
+  export class LoggingService {
+    
+  }
+  ```
+
+  service doesn't need a decorator(can use)
+
 ### pjt
 ## changing pages with routing
 ### pjt
