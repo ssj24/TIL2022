@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .diamond {
+      z-index: 1;
+      /* position: relative; */
+    }
+    .diamond::before {
+      position: absolute;
+      /* top: 0; */
+      /* left: 0; */
+      content: "";
+      display: block;
+      width: 500px;
+      height: 500px;
+      border: 3px solid red;
+      border-radius: 50%;
+      z-index: 99;
+      transform: rotate3d(1, 1, 1, 45deg);
+      animation: spin 3s infinite linear;
+    }
+    @keyframes spin {
+      from {
+        transform: rotate3d(1, 1, 1, 45deg);
+      }
+      to {
+        transform: rotate3d(1, 1, 1, 225deg)
+      }
+    }
+    .orbit {
+      width: 300px;
+      height: 300px;
+      border: 3px solid red;
+      z-index: 3;
+    }
+  </style>
+</head>
+<body>
+  <div class="diamond">
+
+    <!-- <img src="https://cdn-icons-png.flaticon.com/512/432/432492.png" alt="dia"> -->
+  </div>
+</body>
+</html>
