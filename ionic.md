@@ -1,5 +1,9 @@
 # IONIC
 
+[toc]
+
+
+
 ## What's ionic
 
 Ionic is one codebase(html, css, js)
@@ -478,6 +482,465 @@ fetchPersons() {
 
 
 ## Ionic component basics
+
+- core app building blocks
+  - UI components: `<ion-modal>`..
+  - Themes & Styles
+  - Navigation: router
+  - State management
+  - Native Device Features
+  - ionic CLI & publishing
+
+ionic components automatically load polyfills
+
+(since ionic is open source, you could see code on github)
+
+
+
+- we will build nont-angular ionic project in this chapter
+
+  ionic can work without framework(just with vanilla js)
+
+  add ionic with CDN(script and css in head)
+
+  
+
+- core components typescriptpes
+
+  - output: ion-img, ion-label
+  - layout: ion-grid, ion-row
+  - input: ion-button, ion-input
+
+
+
+- `<ion-icon slot="start" name="close">`
+
+  - slot: icon's position
+  - name comes from ionic-icon(https://ionic.io/ionicons)
+
+- CSS utilities with class
+
+- if (user-input-value.trim().length <= 0) {}: if user's input is nothing but white spaces
+
+- ```javascript
+  const newItem = document.createElement('ion-item');
+  newItem.textContent = "it works";
+  document.querySelector('#expenseList').appendChild(newItem);
+  ```
+
+  you can create ion element, too(it can create any tag maybe)
+
+- since input's value is string even if the user insert number value,
+
+  `totalExpenses += +enteredAmount;`
+
+  +prefix make the string-number number
+
+- ```javascript
+  document.querySelector('ion-alert-controller').create({
+    message: 'Valid reason is needed',
+    header: 'Invalid input',
+    button: ['Okay']
+  }).then(alertEl => {
+    alertEl.present() // present it on the screen
+  })
+  ```
+
+
+
+- where the `<app-root>` comes from??
+
+  ```html
+  <!-- src/index.html -->
+  <body>
+    <app-root></app-root>
+  </body>
+  ```
+
+  ```typescript
+  // main.ts
+  ~~~.bootstrapModule(AppModule)
+  
+  // app.module.ts
+  bootstrap: [AppComponent]
+  
+  // app.component.ts
+  selector: 'app-root'
+  ```
+
+
+
+- ionic uses scss(you could use css of course)
+
+
+
+### @ionic/angular wrapper
+
+ionic component suite can be used anywhere if you wrap it with @ionic/angular,
+
+the component suite's usage in angular is easier and more efficient
+
+
+
+- since it's normal angular app even if you make it with ionic,
+
+  `ng serve` command is working
+
+  but `ionic serve` is recommended
+
+  ionic serve runs ng serve anyway.
+
+  it runs ng serve because the type is angular(ionic.config.json)
+
+
+
+### adding & loading a new page
+
+- delete home folder
+
+- `ionic serve` terminal keeps running
+
+- open another terminal
+
+  `ng generate component recipes`
+
+  == `ng g c recipes`
+
+  == `ionic generate `: enum, page, component, service, module, class, directive, guard
+
+  
+
+  
+
+### lazy loading
+
+the code for this module is only fetched when it's really needed
+
+app-routing.module.ts  => routes => loadChildren
+
+the reason why routes have loadChildren is lazy loading
+
+
+
+### ion-router-outlet
+
+```html
+<!-- app.html -->
+<ion-app>
+	<ion-router-outlet></ion-router-outlet>
+</ion-app>
+```
+
+ion-router-outlet is a directive added by `@ionic/angular`
+
+not a default ionic web component
+
+`router-outlet` is normal tag of angular
+
+if you change it(from ion-router-outlet to router-outlet),
+
+you might get error though it is supported.
+
+in that case,
+
+change routes on app-routing.module.ts
+
+```typescript
+routes = [{
+  path: 'recipes',
+  loadChildren: () => import('./recipes/recipes.module')
+  											.then(m =>  m.RecipesPageModule)
+}]
+```
+
+when string typescriptpe of loadChildren gets error, change it like above.
+
+the one used here is relative url, absolute url might be more safe
+
+
+
+anyway, router-outlet can be used, 
+
+but it's hard to make it looks good like ion-router-outlet
+
+just use ion-router-outlet
+
+
+
+
+
+### using angular features on ionic components
+
+ionc extension pack of vscode extension shows you possible tags llist
+
+
+
+```typescript
+// app/recipes/recipe.model.ts
+export interface Recipe {
+  id: string;
+  title: string;
+  imageUrl: string;
+  ingredients: string[]
+}
+```
+
+```typescript
+// recipes.page.ts
+import {Recipe} from './recipe.model';
+
+@Component({})
+export class RecipesPage implements OnInit {
+  recipes: Recipe[] = [
+    {
+      id: 'r1',
+      title: 'GarlicPizza',
+      imageUrl: 'https://~',
+      ingredients: ['garlic', 'flour', 'tomato sauce']
+    }
+  ]
+} 
+```
+
+```html
+<!-- recipes.html -->
+<ion-content>
+	<ion-list>
+  	<ion-item *ngFor="let recipe of recipes">
+    	<ion-avatar slot="start">
+      	<ion-img [src]="recipe.imageUrl"></ion-img>
+      </ion-avatar>
+      <ion-label>{{recipe.title}}</ion-label>
+    </ion-item>
+  </ion-list>
+</ion-content>
+```
+
+ion-avatar is used for wrapping image(good for optimization)
+
+load image only when it is visible!
+
+
+
+### angular routes
+
+`ionic generate page recipes/recipedetail`
+
+```typescript
+// app-routing.module.ts
+{
+  path: 'recipe-detail',
+  loadChildren: () => import('./recipes/recipe-detail/recipe-detail.module')
+  													.then(m => m.RecipeDetailPageModule)
+}
+```
+
+to access recipe-detail with recipe id,
+
+move recipes path's loadChildren to children
+
+then add dynamic url as another child
+
+this one's loadChildren is recipe-detail's loadChildren
+
+move that and remove recipe-detail path
+
+```typescript
+{
+  path: 'recipes',
+  children: [
+    {
+      path: '',
+      loadChildren: () => import('./recipes/recipes.module')
+      											.then(m => m.RecipesPageModule)
+    },
+    {
+      path: ':recipeId',
+      loadChildren: () => import('./recipes/recipe-detail/recipe-detail.module')
+  													.then(m => m.RecipeDetailPageModule)
+    }
+  ]
+}
+```
+
+
+
+### managing state with services
+
+`ionic generate service recipes/recipes`
+
+
+
+```typescript
+// recipes/recipes.service.ts
+recipes: Recipe[] = [
+    {
+      id: 'r1',
+      title: 'GarlicPizza',
+      imageUrl: 'https://~',
+      ingredients: ['garlic', 'flour', 'tomato sauce']
+    },
+  	{
+      id: 'r2',
+      title: 'GarlicPizza2',
+      imageUrl: 'https://~',
+      ingredients: ['garlic', 'flour', 'tomato sauce']
+    },
+  	{
+      id: 'r3',
+      title: 'GarlicPizza3',
+      imageUrl: 'https://~',
+      ingredients: ['garlic', 'flour', 'tomato sauce']
+    },
+  ]
+
+getAllRecipes() {
+  return [...this.recipes];
+}
+
+getRecipe(recipeId: string) {
+  return {
+    ...this.recipes.find(recipe => recipe.id === recipeId;)
+  }
+}
+```
+
+take the recipes list from recipes.page.ts
+
+(take it! not copy and paste!)
+
+
+
+```typescript
+// recipes.page.ts
+
+recipes: Recipe[];
+constructor(private recipesService: RecipesService) {}
+ngOnInit() {
+  this.recipes = this.recipesService.getAllRecipes();
+}
+```
+
+
+
+
+
+### extracting & displaying route param data
+
+```typescript
+// recipe-detail.page.ts
+loadedRecipe: Recipe;
+constructor(private activatedRoute: ActivatedRoute,
+           	private recipesService: RecipesService) {}
+ngOnInit() {
+  this.activatedRoute.paramMap
+  	.subscribe(paramMap => {
+    	if (!paramMap.has('recipeId')) {
+        // it's abnormal situation. it doesn't have id but accessed detail page of that id
+        // redirect is needed
+        return;
+      } 
+    	const recipeId = paramMap.get('recipeId');
+    	this.loadedRecipe = this.recipesService.getRecipe(recipeId);
+  })
+}
+```
+
+paramMap is a map of all the parameters this component receives or params this dynamic url segments
+
+since this observable will emit new data whenever paramMap is changed,
+
+subscribe those changes
+
+even if we are on the same page, param can be changed and this observable will be triggered
+
+```html
+<!-- recipe-detail.page.html -->
+<ion-content>
+	<ion-grid>
+  	<ion-col>
+    	<ion-img [src]="loadedRecipe.imageUrl"></ion-img>
+    </ion-col>
+  </ion-grid>
+</ion-content>
+```
+
+
+
+### Navigation Between pages
+
+```html
+<!-- recipes.page.html -->
+<ion-item *ngFor="let recipe of recipesList" [routerLink]="['./'. recipe.id]"></ion-item>
+```
+
+as long as there is a routerLink, the tag won't needed to be `a`
+
+the link above is relative link which can have an error.
+
+absolute link is `['/recipes', recipe.id]`
+
+
+
+```html
+<!-- recipes.page.html -->
+<ion-toolbar>
+	<ion-buttons slot="start">
+  	<ion-back-button defaultHref="/recipes"></ion-back-button>
+  </ion-buttons>
+</ion-toolbar>
+```
+
+ion-back-button needs to be inside of ion-buttons element
+
+setting defaultHref is needed because if this detail page is the first page you entered somehow,
+
+you don't know where to go so it just disappears.
+
+set the default route!
+
+
+
+### deleting a recipe
+
+```html
+<!-- recipes-detail.page.html -->
+<ion-toolbar>
+	<ion-buttons slot="primary">
+  	<ion-button (click)="onDeleteRecipe()">
+    	<ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+    </ion-button>
+  </ion-buttons>
+</ion-toolbar>
+```
+
+```typescript
+// recipes.service.ts
+deleteRecipe(recipeId: string) {
+  this.recipes = this.recipes.filter(recipe => {
+    return recipe.id !== recipeId;
+  })
+}
+```
+
+```typescript
+// recipe-detail.ts
+constructor(private activatedRoute: ActivatedRoute,
+           	private recipesService: RecipesService,
+           	private router: Router) {}
+onDeleteRecipe() {
+  this.recipesService.deleteRecipe(this.loadedRecipe.id);
+  this.router.navigate(['/recipes']);
+}
+```
+
+
+
+### injecting ionic controllers
+
+
+
+
 
 ## Ionic w Angular
 
