@@ -938,17 +938,849 @@ onDeleteRecipe() {
 
 ### injecting ionic controllers
 
+```typescript
+// recipe-detai.ts
+import {AlertController} from '@ionic/angular';
+
+constructor(private activatedRoute: ActivatedRoute,
+           	private recipesService: RecipesService,
+           	private alertCtrl: AlertController) {}
+ngOnInit() {
+  this.activatedRoute.paramMap
+  	.subscribe(paramMap => {
+    	if (!paramMap.has('recipeId')) {
+        // it's abnormal situation. it doesn't have id but accessed detail page of that id
+        // redirect is needed
+        this.router.navigate(['/recipes']);
+        return;
+      } 
+    	const recipeId = paramMap.get('recipeId');
+    	this.loadedRecipe = this.recipesService.getRecipe(recipeId);
+  })
+}
+onDeleteRecipe() {
+  this.alertCtrl.create({
+    header: 'Are you sure?',
+   	message: 'Do you really want to delete the recipe?',
+    buttons: [{
+      text: 'Cancel',
+      role: 'cancel',
+    }, {
+      text: 'Delete',
+      handler: () => {
+        // add delete logic that we set before
+      }
+    }]
+  }).then(alertEl => {
+    alertEl.present();
+  })
+}
+```
+
+:exclamation: constructor method is not provided by Angular but JS engine. you couldn't see whether component is initialized or not by constructor. constructor is needed for dependency injection
 
 
-
-
-## Ionic w Angular
 
 ## Building native apps with capacitor
 
+### Android
+
+`ionic capacitor add android` : android folder will be created
+
+we need android-studio
+
+build the app before make it into a native app
+
+`ng build`: www folder will be created
+
+```json
+// capacitor.config.js(placed in root folder)
+"apppId": "com.udemy.recipes", // anything unique
+```
+
+`ionic capacitor copy android`
+
+`ionic capacitor run android`
+
+- this command gives me an error
+
+- ```shell 
+  ionic capacitor synk
+  ionic capacitor open android
+  ```
+
+wait untill it loaded!!
+
+`ionic capacitor run android -l`: live reload
+
+### iOS
+
+iOS needs xcode and macbook
+
+`ionic capacitor add ios`
+
+id on appId is not permitted
+
+`ionic capacitor copy ios`
+
+`ionic capacitor run ios`
+
+app / general / signing / team setting
+
+
+
+but I got error from `ionic capacitor add ios`, yes it is first step!
+
+it was matter of M1....
+
+https://stackoverflow.com/questions/69482465/npx-cap-add-ios-fails-with-error-updating-ios-native-dependencies-with-pod-i
+
+`sudo arch -x86_64 gem install ffi`
+
+inside ios/App 
+
+```shell
+arch -x86_64 pod install
+cd ..
+cd ..
+npx cap sync
+```
+
+
+
+
+
+image was not showing in iOS simulator(only! in iOS)
+
+- app is case sensitive
+- fixed imageUrl(without white spaces)
+
+
+
+after code modification, run `ionic capacitor run ios` wil reload it
+
+OR
+
+`ionic capacitor run ios -l` will live reload it(after this command turn off the simulator then turn it on again)
+
+if you run this command, you could see
+
+```json
+// capacitor.config.json
+"server": {
+  "url": "http://192.168.178.45:8100"
+}
+```
+
+url is added automatically
+
+
+
 ## debugging
 
+### error messages & console logging
+
+even after delete a recipe,
+
+we could see that recipe on the list
+
+```typescript
+// recipes.ts
+ngOnInit() {
+  console.log(this.recipes)
+}
+```
+
+after delete, we redirected to the recipes page,
+
+but **the console doesn't logging recipes again!**
+
+which means angular couldn't get the changes(recipe delete)
+
+
+
+:exclamation: `chrome://inspect`: and app
+
+:exclamation: safari => develop/simulator => click IP address: ios app
+
+
+
 ## navigation & routing in Ionic apps
+
+since ionic caches pages,
+
+our delete function didn't workid like we expected
+
+
+
+life cycle
+
+| ang components | ionic pages      |
+| -------------- | ---------------- |
+| ngOnInit       |                  |
+|                | ionViewWillEnter |
+|                | ionViewDidEnter  |
+|                | ionViewWillLeave |
+|                | ionViewDidLeave  |
+| ngOnDestroy    |                  |
+
+when you go back, recipe-detail page will be destroyed
+
+you could use ionic life cycle **without import**!
+
+
+
+let's say the navigation is a stack of files
+
+even if you go to the recipes/r1 page from recipes,
+
+ngOnDestroy will not happening
+
+it was just filed up.
+
+that's why when you got back from recipes/r1 to recipes page
+
+ngOnInit wasn't triggered
+
+you could see with console logging that
+
+it reaches far to the ionViewDidLeave than coming back till the ionViewWillEnter, not ngOnInit
+
+so, if you move the code in ngOnInit th ionViewWillEnter,
+
+delete function now works like we expected
+
+
+
+### course project plan
+
+find places, place detail, booking modal, 
+
+offers, new offer, bookings, offer detail,
+
+authentication
+
+
+
+```shell
+ionic generate page auth
+ionic generate page places
+ionic generate page places/discover
+ionic generate page places/offers
+ionic generate page places/offers/new-offer
+ionic generate page places/offers/edit-offer
+ionic generate page places/offers/offer-bookings
+ionic generate page places/discover/place-detail
+ionic generate page bookings
+```
+
+
+
+```typescript
+// app-routing.module.ts
+path: '', redirectTo: 'places',
+```
+
+leave `'', auth, places, booking` these four paths only
+
+places.html is what you see when you run `ionic serve`
+
+
+
+there are two tab, which mean each tab have separate navigation page stacks
+
+
+
+### adding tabs
+
+```html
+<ion-tabs>
+	<ion-tab-bar slot="bottom"> <!-- slot is necessary -->
+  	<ion-tab-button tab="discover">
+    	<ion-label>Discover</ion-label>
+      <ion-icon name="search"></ion-icon>
+    </ion-tab-button>
+    <ion-tab-button tab="offers">
+    	<ion-label>Offers</ion-label>
+      <ion-icon name="card"></ion-icon>
+    </ion-tab-button>
+  </ion-tab-bar>
+</ion-tabs>
+```
+
+```typescript
+// places/places-routing.module.ts
+
+const routes: Routes = [{
+  path: 'tabs',
+  component: PlacesPage,
+  children: [{
+    path: 'discover',
+    loadChildren: './discover/discover.module#DiscoverPageModule'
+  },{
+    path: ':placeId', // dynamic path
+    loadChildren: './discover/place-detail/place-detail.module#PlaceDetailPageModule'
+  }]
+},{
+  path: 'offers',
+  children: [{
+    path: '',
+    loadChildren: './offers/offers.module#OffersPageModule'
+  },{
+    path: 'edit/:placeId', // dynamic path
+    loadChildren: './offers/edit-offer/edit-offer.module#EditOfferPageModule'
+  },{
+    path: 'new',
+    loadChildren: './offers/new-offer/new-offer.module#NewOfferPageModule'
+  },{
+    path: ':placeId', // dynamic path
+    loadChildren: './offers/offer-bookings/offer-booking.module#OfferBookingsPageModule'
+  }]
+}]
+
+@NgModule({
+  imports: [RouterModule.forChild(routes)],
+  exports: [RouterModule]
+})
+```
+
+hard coded route needs to come before dynamic one
+
+
+
+since we will import places=routing.module,
+
+- get rid of 
+- routes constant and Routes  import
+- FormsModule, 
+- FormsModule, RouterModule from import
+- from places.module.ts
+
+- insert PlacesRoutingModule to import
+
+
+
+```typescript
+// places-routing.module.ts
+const routes: Routes=[
+  { path: 'tabs',
+  ...
+   ,{ 
+     path: '',
+     redirectTo: '/places/tabs/discover',
+     pathMatch: 'full'
+    }
+  }, { 
+   path: '',
+   redirectTo: '/places/tabs/discover',
+   pathMatch: 'full'
+  }
+]
+```
+
+add same path to tabs' children's last child
+
+and last child of routes
+
+
+
+get rid of everything but ion-tabs from places.html
+
+
+
+`ionic generate service places/places`
+
+```typescript
+// places.service.ts
+private _places = [];
+get places() { // getter
+  return [...this._places];
+}
+```
+
+
+
+```typescript
+// places/place.model.ts
+export class Place {
+  constructor(pullic id: string, public title: string, public description: string, ~~) {}
+}
+```
+
+define at model constructor()
+
+
+
+```typescript
+// places.service.ts
+export class PlacesService {
+  private _places: [
+    new Place('p1', 'Manhattan Mansion', 'https://~'),
+    new Place('p2', 'Manhattan Mansion', 'https://~'),
+    new Place('p3', 'Manhattan Mansion', 'https://~'),
+  ]
+}
+```
+
+you could use service anywhere 
+
+- if service has `injectable` decorator
+- and value of `providedIn` propertypescript is 'root'
+
+or add it to module's provides array
+
+
+
+`*ngFor="let place of loadedPlaces.slice(1)"`: loop from index 1, second item!
+
+
+
+```html
+<ion-thumbnail slot="start">
+	<ion-img [src]="place.imageUrl"></ion-img>
+</ion-thumbnail>
+<ion-label>
+	<h2>
+     title
+  </h2>
+</ion-label>
+```
+
+image will be placed at left in tiny size and title will be placed right side of it
+
+
+
+`<ion-button [routerLink]="['/', 'places', 'tabs', place.id]">`
+
+since this url needs place.id, data binding need to be dynamic
+
+
+
+- ionic option with routerLink!
+
+  you could add routerDirection attribute
+
+  whether this navigation will be forward(default value) or backward
+
+  `<ion-button [routerLink]="['/', 'places', 'tabs', place.id]" routerDirection="backward">`
+
+
+
+if you add `detail` attr to routerLink element(no need of passing data), will show the image that this is a link
+
+`<ion-button [routerLink]="['/', 'places', 'tabs', place.id]" routerDirection="backward" detail>`
+
+
+
+### nav back
+
+1. ```html
+   <ion-buttons slot="start">
+   	<ion-back-button defaultHref="/places/tabs/discover"></ion-back-button>
+   </ion-buttons>
+   ```
+
+2. router, navcontroller
+
+   ```typescript
+   import {Router} from '@angular/router';
+   import {NavController} from '@ionic/angular';
+   
+   constructor(private router: Router, 
+              	private navCtrl: NavController) {}
+   
+   onBookPlace() {
+     // this.router.navigateByUrl('/places/tabs/discover');
+     this.navCtrl.navigateBack('/places/tabs/discover');
+   }
+   ```
+
+   this.navCtrl.pop() is works alike, but after refresh the page, it won't work.
+
+
+
+### navigation via toolbar buttons
+
+```html
+<ion-toolbar>
+	<ion-buttons slot="primary">
+  	<ion-button routerLink="/places/tabs/offers/new"> <!-- static url -->
+    </ion-button>
+  </ion-buttons>
+</ion-toolbar>
+```
+
+```typescript
+constructor (private route: ActivatedRoute, 
+             private navCtrl: NavController,
+             private placesService: PlacesService) {}
+
+ngOnInit() {
+  this.route.paramMap.subscribe(paramMap => { // subscribe to access dynamic par of url
+    if (!paramMap.has('placeId')) {
+      this.navCtrl.navigateBack('/places/tabs/offers');
+      return;
+    }
+    this.place = this.placesService.getPlace(paramMap.get('placeId'));
+  })
+}
+```
+
+```typescript
+// places.service.ts
+
+getPlace(id: string) {
+  return {...this._places.find(p => p.id === id)};
+}
+```
+
+
+
+
+
+### side drawer
+
+since this one will be used in several pages,
+
+```html
+<!-- app.component.html -->
+
+<ion-app>
+	<ion-menu side="start"> <!-- if there's multiple give it an id -->
+  	<ion-header> <!-- have header and content like common pages -->
+    	<ion-title>title</ion-title>
+    </ion-header>
+    <ion-content>
+      <ion-list>
+      	<ion-item>
+        	<ion-icon></ion-icon>
+          <ion-label></ion-label>
+        </ion-item>
+        <ion-item>
+        	<ion-icon></ion-icon>
+          <ion-label></ion-label>
+        </ion-item>
+        <ion-item>
+        	<ion-icon></ion-icon>
+          <ion-label></ion-label>
+        </ion-item>
+      </ion-list>
+    </ion-content>
+  </ion-menu>
+  <ion-router-outlet></ion-router-outlet>
+</ion-app>
+```
+
+```html
+<!-- offers.page.html -->
+<ion-header>
+	<ion-toolbar>
+  	<ion-buttons slot="start">
+    	<ion-menu-button menu="m1"> <!-- if there's an id, specify it -->
+      </ion-menu-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+```
+
+by adding menu like above,
+
+now you can see hamburger menu on offers page
+
+since this component is offered by ionic, it can be open and close in normal way
+
+if you want it to be open and close by manually,
+
+```html
+<ion-buttons>
+	<ion-button (click)="onOpenMenu()"></ion-button>
+</ion-buttons>
+```
+
+```typescript
+constructor (private menuCtrl: MenuController) {}
+
+onOpenMenu() {
+	// this.menuCtrl.close('m1'); // if there is no id, don't pass anything
+  this.menuCtrl.toggle():
+}
+```
+
+
+
+close the drawer after click link
+
+```html
+<!-- root.component.html -->
+
+<ion-app>
+	<ion-menu side="start" menu="m1"> <!-- if there's multiple give it an id -->
+  	<ion-header> <!-- have header and content like common pages -->
+    	<ion-title>title</ion-title>
+    </ion-header>
+    <ion-content>
+      <ion-list>
+        <ion-menu-toggle menu="m1"> <!-- if there's an menu id -->
+          <ion-item></ion-item>
+        </ion-menu-toggle>
+      	<ion-menu-toggle>
+          <ion-item></ion-item>
+        </ion-menu-toggle>
+        <ion-menu-toggle>
+          <ion-item></ion-item>
+        </ion-menu-toggle>
+      </ion-list>
+    </ion-content>
+  </ion-menu>
+  <ion-router-outlet></ion-router-outlet>
+</ion-app>
+```
+
+use ion-menu-toggle wherever needs toggle!
+
+it could be placed in anywhere
+
+
+
+### authentication
+
+`ionic generate service auth/auth`
+
+```typescript
+// auth.service.ts
+private _userIsAuthenticated = false;
+
+get UserIsAuthenticated() { return this._userIsAuthenticated; }
+
+login() {
+  this._userIsAuthenticated = true;
+}
+
+logout() {
+  this._userIsAuthenticated = false;
+}
+```
+
+```typescript
+// auth.page.ts
+
+constructor(private authService: AuthService) {}
+
+onLogin() {
+  this.authService.login();
+}
+```
+
+
+
+#### guard pages that needed login
+
+`ionic generate guard auth/auth`
+
+```typescript
+// auth/auth.guard.ts
+
+@Injectable({
+  providedIn: 'root'
+})
+export class AuthGuard implements CanLoad {
+  constructor(private authService: AuthService, private router: Router) {}
+
+  canLoad(
+    route: Route,
+    segments: UrlSegment[]
+  ): Observable<boolean> | Promise<boolean> | boolean {
+    if (!this.authService.userIsAuthenticated) {
+      this.router.navigateByUrl('/auth');
+    }
+    return this.authService.userIsAuthenticated; // need to return boolean value
+  }
+}
+```
+
+it can be attached to the route
+
+since each path is lazy loaded, 
+
+page can be loaded before guard
+
+to prevent such accident, use CanLoad.
+
+if you click CanLoad with command clicked on vscode,
+
+you will be redirected to `interfaces.d.ts`
+
+copy and paste the definition of canload from there.
+
+
+
+auth guard's return value defends on user auth status.
+
+AuthService is needed!
+
+
+
+```typescript
+// app-routing.module.ts
+const routes: Routes = [
+  {
+    path: 'places',
+    loadChildren: ~,
+    canLoad: [AuthGuard]
+  }
+]
+```
+
+add canLoad property to every path needed login
+
+
+
+```typescript
+// auth.page.ts
+
+constructor (private authService: AuthService,
+             private router: Router) {}
+
+onLogin() {
+  this.authService.login();
+  this.router.navigateByUrl('/places/tabs/discover');
+}
+```
+
+```typescript
+// app.component.ts
+constructor (...,
+             private authService: AuthService,
+             private router: Router) {
+  this.initializeApp();
+}
+
+initializeApp() {
+  this.platform.ready().then(() => {
+    this.statusBar.styleDefault();
+    this.splashScreen.hide();
+  })
+}
+
+onLogout() {
+  this.authService.logout();
+  this.router.navigateByUrl('/auth');
+}
+```
+
+this.initializeApp..... I don't remember this..
+
+
+
+### modal
+
+`ionic generate component bookings/create-booking`
+
+```typescript
+// place-detail.page.ts
+constructor(... private modalCtrl: ModalController) {}
+
+onBookPlace() {
+	this.modalCtrl.create({
+		component: CreateBookingComponent	
+	}).then (modalEl => {
+		modelEl.present();
+	})
+}
+```
+
+to enable use of `CreateBookingComponent`,
+
+remove create-booking declare from bookings.module.ts
+
+add create-booking declare at place-detail.module.ts
+
+
+
+it will throws an error
+
+since onBookPlace is not use routing
+
+neither selector of component
+
+when trying to open/rendering new component.
+
+angular won't recognize it.
+
+let angular know it
+
+```typescript
+// place-detail.module.ts
+@NgModule({
+  entryComponents: [CreateBookingComponent]
+})
+```
+
+
+
+#### passing data to modal
+
+```typescript
+// place-detail.page.ts
+onBookPlace() {
+  this.modelCtrl.create({
+    component: CreateBookingComponent,
+    componentProps: { selectedPlace: this.place },
+    // you could set id in here, if needed
+  }).then()
+}
+```
+
+to enable this,
+
+```typescript
+// create-booking.ts
+@Input() selectedPlace: Place;
+```
+
+
+
+#### close modal and get data from modal
+
+```html
+<!-- create-booking.html -->
+<ion-button (click)="onBookPlace()"></ion-button>
+<ion-buttons>
+	<ion-button (click)="onCancel()"></ion-button>
+</ion-buttons>
+```
+
+```typescript
+// create-booking.component.ts
+constructor(private modalCtrl: ModalController) {}
+
+onCancel() {
+  this.modalCtrl.dismiss(null, 'cancel', (id));
+  // first: data to pass, seconde: role, third: id(optional)
+}
+
+onBookPlace() {
+  this.modalCtrl.dismiss({ message: 'book msg', 'confirm'});
+}
+```
+
+```typescript
+// place-deatil.page.ts
+onBookPlace() {
+  this.modalCtrl.create()
+  .then(modalEl => {
+    modalEl.present();
+    return modalEl.onDidDismiss();
+  }).then(result => { // then comes after onDidDismiss
+    console.log(result.data, result.role);
+    if (result.role === 'confirm') {
+      console.log('booked!!');
+    }
+  })
+}
+```
+
+
 
 ## Ionic components overview
 
