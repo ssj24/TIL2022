@@ -1684,7 +1684,7 @@ onBookPlace() {
 	this.modalCtrl.create({
 		component: CreateBookingComponent	
 	}).then (modalEl => {
-		modelEl.present();
+		modalEl.present();
 	})
 }
 ```
