@@ -1068,3 +1068,267 @@ p.b {
 }
 ```
 
+
+
+## link
+
+The four links states are:
+
+- `a:link` - a normal, unvisited link
+- `a:visited` - a link the user has visited
+- `a:hover` - a link when the user mouses over it
+- `a:active` - a link the moment it is clicked
+
+When setting the style for several link states, there are some order rules:
+
+- a:hover MUST come after a:link and a:visited
+- a:active MUST come after a:hover
+
+The `text-decoration` property is mostly used to remove underlines from links:
+
+`text-decoration: none;`
+
+### cursors
+
+demonstrates the different types of cursors (can be useful for links):
+
+```html
+<span style="cursor: auto">auto</span><br>
+<span style="cursor: crosshair">crosshair</span><br>
+<span style="cursor: default">default</span><br>
+<span style="cursor: e-resize">e-resize</span><br>
+<span style="cursor: help">help</span><br>
+<span style="cursor: move">move</span><br>
+<span style="cursor: n-resize">n-resize</span><br>
+<span style="cursor: ne-resize">ne-resize</span><br>
+<span style="cursor: nw-resize">nw-resize</span><br>
+<span style="cursor: pointer">pointer</span><br>
+<span style="cursor: progress">progress</span><br>
+<span style="cursor: s-resize">s-resize</span><br>
+<span style="cursor: se-resize">se-resize</span><br>
+<span style="cursor: sw-resize">sw-resize</span><br>
+<span style="cursor: text">text</span><br>
+<span style="cursor: w-resize">w-resize</span><br>
+<span style="cursor: wait">wait</span>
+```
+
+
+
+## list
+
+In HTML, there are two main types of lists:
+
+- unordered lists (<ul>) - the list items are marked with bullets
+- ordered lists (<ol>) - the list items are marked with numbers or letters
+
+The CSS list properties allow you to:
+
+- Set different list item markers for ordered lists
+- Set different list item markers for unordered lists
+- Set an image as the list item marker
+- Add background colors to lists and list items
+
+
+
+Anything added to the <ol> or <ul> tag, affects the entire list, while properties added to the <li> tag will affect the individual list items.
+
+### List Item Markers
+
+The `list-style-type` property specifies the type of list item marker.
+
+```html
+ul.a {
+  list-style-type: circle;
+}
+
+ul.b {
+  list-style-type: square;
+}
+
+ol.c {
+  list-style-type: upper-roman;
+}
+
+ol.d {
+  list-style-type: lower-alpha;
+}
+```
+
+The `list-style-image` property specifies an image as the list item marker:
+
+`ul {list-style-image: url('sqpurple.gif');}`
+
+The `list-style-position` property specifies the position of the list-item markers (bullet points).
+
+`list-style-position: outside;` means that the bullet points will be outside the list item. The start of each line of a list item will be aligned vertically. This is default.
+
+`list-style-position: inside;` means that the bullet points will be inside the list item. As it is part of the list item, it will be part of the text and push the text at the start.
+
+
+
+### remove default setting
+
+The `list-style-type:none` property can also be used to remove the markers/bullets. Note that the list also has default margin and padding. To remove this, add `margin:0` and `padding:0` to <ul> or <ol>:
+
+
+
+### List - Shorthand property
+
+`list-style: square inside url("sqpurple.gif");`
+
+When using the shorthand property, the order of the property values are:
+
+- `list-style-type` (if a list-style-image is specified, the value of this property will be displayed if the image for some reason cannot be displayed)
+- `list-style-position` (specifies whether the list-item markers should appear inside or outside the content flow)
+- `list-style-image` (specifies an image as the list item marker)
+
+If one of the property values above is missing, the default value for the missing property will be inserted, if any.
+
+
+
+## tables
+
+### border
+
+To specify table borders in CSS, use the `border` property.
+
+```css
+table, th, td {
+  border: 1px solid;
+}
+```
+
+Notice that the table from the examples above have double borders. This is because both the table and the <th> and <td> elements have separate borders.
+
+The `border-collapse` property sets whether the table borders should be collapsed into a single border:
+
+```css
+table {
+  border-collapse: collapse;
+}
+```
+
+If you only want a border around the table, only specify the `border` property for <table>
+
+### Horizontal Alignment
+
+The `text-align` property sets the horizontal alignment (like left, right, or center) of the content in <th> or <td>.
+
+By default, the content of <th> elements are center-aligned and the content of <td> elements are left-aligned.
+
+To center-align the content of <td> elements as well, use `text-align: center`:
+
+### Vertical Alignment
+
+The `vertical-align` property sets the vertical alignment (like top, bottom, or middle) of the content in <th> or <td>.
+
+By default, the vertical alignment of the content in a table is middle (for both <th> and <td> elements).
+
+### Striped Tables
+
+For zebra-striped tables, use the `nth-child()` selector and add a `background-color` to all even (or odd) table rows
+
+```css
+tr:nth-child(even) {background-color: #f2f2f2;}
+```
+
+### Responsive Table
+
+A responsive table will display a horizontal scroll bar if the screen is too small to display the full content:
+
+Add a container element (like <div>) with `overflow-x:auto` around the <table> element to make it responsive
+
+```html
+<div style="overflow-x:auto;">
+
+<table>
+... table content ...
+</table>
+
+</div>
+```
+
+In OS X Lion (on Mac), scrollbars are hidden by default and only shown when being used (even though "overflow:scroll" is set).
+
+
+
+### CSS Table Properties
+
+| Property                                                     | Description                                                  |
+| :----------------------------------------------------------- | :----------------------------------------------------------- |
+| [border](https://www.w3schools.com/cssref/pr_border.asp)     | Sets all the border properties in one declaration            |
+| [border-collapse](https://www.w3schools.com/cssref/pr_border-collapse.asp) | Specifies whether or not table borders should be collapsed   |
+| [border-spacing](https://www.w3schools.com/cssref/pr_border-spacing.asp) | Specifies the distance between the borders of adjacent cells |
+| [caption-side](https://www.w3schools.com/cssref/pr_tab_caption-side.asp) | Specifies the placement of a table caption                   |
+| [empty-cells](https://www.w3schools.com/cssref/pr_tab_empty-cells.asp) | Specifies whether or not to display borders and background on empty cells in a table |
+| [table-layout](https://www.w3schools.com/cssref/pr_tab_table-layout.asp) | Sets the layout algorithm to be used for a table             |
+
+#### empty-cells
+
+The `empty-cells` property sets whether or not to display borders on empty cells in a table.
+
+**Note:** This property has no effect if [border-collapse](https://www.w3schools.com/cssref/pr_border-collapse.php) is "collapse".
+
+show|hide|initial|inherit;
+
+```css
+table {
+  empty-cells: hide;
+}
+```
+
+
+
+## Layout - The display Property
+
+The `display` property specifies if/how an element is displayed.
+
+Every HTML element has a default display value depending on what type of element it is. The default display value for most elements is `block` or `inline`.
+
+A block-level element always starts on a new line and takes up the full width available (stretches out to the left and right as far as it can).
+
+Examples of block-level elements:
+
+- div
+- h1-h6
+- p
+- form
+- header
+- footer
+- section
+
+An inline element does not start on a new line and only takes up as much width as necessary.
+
+- span
+- a
+- img
+
+
+
+`display: none;` is commonly used with JavaScript to hide and show elements without deleting and recreating them.
+
+The `<script>` element uses `display: none;` as default. 
+
+every element has a default display value. However, you can override this by setting on css.
+
+`display: block;`
+
+Setting the display property of an element only changes **how the element is displayed**, NOT what kind of element it is. So, an inline element with `display: block;` is not allowed to have other block elements inside it.
+
+
+
+### Hide an Element - display:none or visibility:hidden?
+
+with the `display: none;`, The element will be hidden, and the page will be displayed as if the element is not there:
+
+`visibility:hidden;` also hides an element.
+
+However, the element will still take up the same space as before. The element will be hidden, but still affect the layout:
+
+
+
+## width and max-width
+
+a block-level element always takes up the full width available (stretches out to the left and right as far as it can).
+
+Setting the `width` of a block-level element will prevent it from stretching out to the edges of its container. Then, you can set the margins to auto, to horizontally center the element within its container. The element will take up the specified width, and the remaining space will be split equally between the two margins:

@@ -1788,6 +1788,70 @@ onBookPlace() {
 
 ## user input
 
+```html
+<form #f="ngForm">
+  <ion-list>
+  	<ion-item>
+    	<ion-label position="floating"></ion-label>
+      <ion-input
+         type="email"
+         ngModel
+         name="email"
+         required
+         email
+         #emailCtrl="ngModel"
+      ></ion-input>
+    </ion-item>
+    <p *ngIf="!emailCtrl.valid && emailCtrl.touched">
+      Should be a valid email address.
+    </p>
+  </ion-list>
+</form>
+```
+
+```html
+<ion-row>
+	<ion-col size-sm="6" offset-sm="3">
+  	<ion-datetime min="2019-01-01" max="2021-12-31"></ion-datetime>
+  </ion-col>
+</ion-row>
+```
+
+
+
+## reactive form
+
+FormModule이 아니라  ReactiveFormsModule을 app.module.ts에서 import
+
+```typescript
+form: FormGroup;
+ngOnInit() {
+  this.form = new FormGroup({
+    title: new formControl(null, {
+      updateOn: 'blur',
+      validators: [Validators.required]
+    }),
+    description,
+    price,
+    dateFrom,
+    dateTo,
+  })
+  Validators.maxLength(180),
+  Validators.min(1)
+}
+```
+
+```html
+<form [formGroup]="form">
+  <ion-input formControlName="title"
+             *ngIf="!form.get('description').valid && form.get(description).touched">
+  </ion-input>
+  <ion-button [disabled]="!form.valid"></ion-button>
+</form>
+```
+
+
+
 ## managing state
 
 ## http requests
