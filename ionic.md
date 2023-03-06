@@ -983,6 +983,18 @@ onDeleteRecipe() {
 
 ## Building native apps with capacitor
 
+ionic capacitor add android
+
+ionic capacitor add ios
+
+ng build
+
+ionic capacitor sync
+
+ionic capacitor open android
+
+ionic capacitor open ios
+
 ### Android
 
 `ionic capacitor add android` : android folder will be created
@@ -1000,14 +1012,32 @@ build the app before make it into a native app
 
 `ionic capacitor copy android`
 
+- sync is better than copy
+
 `ionic capacitor run android`
 
 - this command gives me an error
 
+- don't do the run just use `open`
+
 - ```shell 
-  ionic capacitor synk
+  ionic capacitor sync
   ionic capacitor open android
   ```
+  
+  if you don't specify android or ios or whatever after sync(like sync android), it will sync everything under capacitor.
+  
+  => `ionic capacitor sync` will sync to both android and ios
+  
+  +) I know it sounds obvious but I was confused so I'll leave a note here. 
+  
+  ​	when android studio is opened,
+  
+  ​	if you change the code from vscode and do the build, sync task,
+  
+  ​	code on the android studio is changed, too.
+  
+  ​	what you see on the vscode and the android studio is just same folder.
 
 wait untill it loaded!!
 
@@ -1015,7 +1045,7 @@ wait untill it loaded!!
 
 ### iOS
 
-iOS needs xcode and macbook
+iOS needs xcode and macbookioi
 
 `ionic capacitor add ios`
 
