@@ -1,0 +1,216 @@
+@font-face {
+  font-family: 'iceJaram-Rg';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2307-2@1.0/iceJaram-Rg.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+}* {
+  -webkit-tap-highlight-color: transparent;
+  margin: 0;
+  padding: 0;
+}
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+textarea, input
+  {
+    outline: none;
+    -webkit-appearance: none;
+    box-shadow: none !important;
+  }
+
+html, body {
+  -webkit-text-size-adjust:none;
+  width: 100vw;
+  height: 100%;
+  min-height: 100vh;
+  box-sizing: border-box;
+  margin: 0;
+  font-size: 16px;
+  font-family: "iceJaram-Rg", serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button {
+  font-family: "iceJaram-Rg", serif;
+  font-size: 24px;
+}
+button:active {
+  outline: none;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+ul {
+  list-style: none;
+}
+
+li {
+  width: 100%;
+}
+li:hover {
+  cursor: pointer;
+}
+
+.main {
+  width: 100%;
+  height: 100%;
+  margin: 0 auto;
+  padding: 40px;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.center {
+  text-align: center;
+}
+
+
+.dNone {
+  display: none;
+}
+
+.like {
+  padding: 8px 16px;
+  background-color: transparent;
+  /* border: 2px solid rgb(254, 255, 206); */
+  border-radius: 8px;
+  position: relative;
+  z-index: 100;
+  overflow: visible;
+}
+
+.like svg {
+  transition: all 0.3s linear;
+  overflow: visible;
+}
+
+.like .star {
+  width: 15px;
+  height: 15px;
+  position: absolute;
+  z-index: 90;
+  display: none;
+}
+.like.activate:focus svg.heart {
+  transform: scale(2);
+  z-index: 110;
+
+}
+.like.activate:focus svg.heart path {
+  stroke: none;
+  animation: scaleAndColor 1s linear;
+}
+.like.activate svg.heart path {
+  stroke: none;
+  fill: red;
+}
+.like.activate:focus .star {
+  display: block;
+}
+.like .star path {
+  fill: transparent;
+}
+.like.activate:focus svg.star path {
+  animation: shakeAndRotate 1.3s linear;
+}
+
+.star.first {
+  left: -5%;
+  top: 50%;
+  transform: rotate(-45deg);
+}
+
+.star.second {
+  width: 20px;
+  height: 20px;
+  transform: rotate(-15deg);
+  left: -25%;
+  top: 10%;
+}
+.star.third {
+  width: 10px;
+  height: 10px;
+  transform: rotate(15deg);
+  right: 0%;
+  top: 0;
+}
+
+@keyframes col {
+  0% {
+    fill:#FF8F8F;
+    transform: rotate(0deg);
+  }
+  25% {
+    fill:#EEF296;
+    transform: rotate(-4deg);
+  }
+  50% {
+    fill:#9ADE7B;
+    transform: rotate(-8deg);
+  }
+  75% {
+    fill:#508D69;
+    transform: rotate(2deg);
+  }
+  100% {
+    fill:#FF8F8F;
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes shakeAndRotate {
+  0%, 100% {
+    transform: translateX(-5px) rotate(0deg);
+    fill: yellow;
+  }
+  25% {
+    transform: translateX(5px) rotate(5deg);
+    fill: green;
+  }
+  50% {
+    transform: translateX(-5px) rotate(-5deg);
+    fill: blue;
+  }
+  75% {
+    transform: translateX(5px) rotate(-15deg);
+    fill: red; /* Change the colors accordingly */
+  }
+}
+
+@keyframes scaleAndColor {
+  0%, 100% {
+    transform: scale(1);
+    fill: red; /* Change the colors accordingly */
+  }
+  25% {
+    transform: scale(1.1);
+    fill: yellow;
+  }
+  40% {
+    transform: scale(1.2) translateX(-1px);
+    fill: green;
+  }
+  45% {
+    transform: scale(1.2) translateX(1px);
+    fill: green;
+  }
+  50% {
+    transform: scale(1.2) translateX(-1px);
+    fill: green;
+  }
+  55% {
+    transform: scale(1.2) translateX(1px);
+    fill: green;
+  }
+  75% {
+    transform: scale(1.1);
+    fill: blue;
+  }
+}

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LikeIt</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" type="image/png" href="LFav.png" />
+</head>
+<body>
+  <div class="main">
+    <div class="button-wrapper">
+      <button class="like">
+        <svg class="heart" width="18" height="14" viewBox="0 0 18 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M8.47091 4.10885L8.89517 4.53311L9.31944 4.10885L11.9248 1.50345L11.5006 1.07919L11.9249 1.50345C13.1294 0.298848 15.0825 0.298844 16.2871 1.50345C17.4917 2.70804 17.4917 4.66114 16.2871 5.86573L13.6817 8.47112L14.106 8.89539L13.6817 8.47112L9.29366 12.8592C9.29366 12.8592 9.29365 12.8592 9.29365 12.8592C9.0737 13.0791 8.71688 13.0793 8.49659 12.8591L4.10886 8.47113L4.10885 8.47112L1.50344 5.86573C0.298853 4.66114 0.298853 2.70804 1.50344 1.50345C2.70805 0.298844 4.66091 0.298848 5.8655 1.50345L5.8655 1.50345L8.47091 4.10885Z" stroke="black" stroke-width="1.2"/>
+        </svg>
+        <svg class="star first dNone" width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M256 20L308.985 183.072H480.449L341.732 283.856L394.717 446.928L256 346.144L117.283 446.928L170.268 283.856L31.5507 183.072H203.015L256 20Z" fill="black"/>
+          </svg>
+        <svg class="star second dNone" width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M256 20L308.985 183.072H480.449L341.732 283.856L394.717 446.928L256 346.144L117.283 446.928L170.268 283.856L31.5507 183.072H203.015L256 20Z" fill="black"/>
+        </svg>
+        <svg class="star third dNone" width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M256 20L308.985 183.072H480.449L341.732 283.856L394.717 446.928L256 346.144L117.283 446.928L170.268 283.856L31.5507 183.072H203.015L256 20Z" fill="black"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+  <script>
+    const likeBtn = document.querySelector('.like');
+    const stars = document.querySelectorAll('.star');
+    likeBtn.addEventListener('mousedown', () => {
+      likeBtn.classList.toggle('activate');
+    })
+    // likeBtn.addEventListener('click', () => {
+    //   likeBtn.classList.toggle('activate');
+    // })
+  </script>
+</body>
+</html>
